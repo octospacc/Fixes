@@ -11,13 +11,11 @@
 		0E415B628ECA429151193C6B /* ItemEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08ADDFC1B0FCB4869E60380B /* ItemEditorView.swift */; };
 		139FFFA1A77407F2C43FA02E /* ConsumableCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAE286A50A9D70E07550C74 /* ConsumableCategory.swift */; };
 		1BF848C159AE44A46303C475 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46E01DF37CD02C2EC6B10B54 /* RootView.swift */; };
-		219BF70AD91BB52863F7A81B /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065B4B7397C00AE5DDB3E1C8 /* Components.swift */; };
 		247F853BC59FA01E0C587046 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9811277D3232508F032D826 /* Formatters.swift */; };
 		27BE98AAECA230D90785FBD3 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9487F191BBA698B3FC93F5B /* StatsView.swift */; };
+		314255F2C1103950EDB98AB2 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B77668FF92619DB3AEF04525 /* PersistenceTests.swift */; };
 		338E5CDE0001355937AB34F2 /* StatsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AE22E7768DD1CD7B7F932F /* StatsEngine.swift */; };
-		39A863A3EAD3F172889DD9CA /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD9F270394C894B2AD0BCD6 /* Theme.swift */; };
 		446D72DB8B5D450844D65ABF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E91360750E6493DD7621468 /* Assets.xcassets */; };
-		4DD1E8B8EEC59C34BE38C811 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A3ED976A948708866B18F5 /* Color+Hex.swift */; };
 		53632CAFAED577CF27A6A57E /* ConsumablePreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51519F0EA2E3324A4458254F /* ConsumablePreset.swift */; };
 		78EDA158F08318F26FF58EFD /* StatsEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CD328BED299FAC534928CD /* StatsEngineTests.swift */; };
 		975CC28918D6535F180DA739 /* ConsumptionEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6E3E570C896FE51137E3A7 /* ConsumptionEntry.swift */; };
@@ -28,6 +26,7 @@
 		CA032C843FFD6A6C7DFFE993 /* ItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899658700AACF342F75741BB /* ItemsView.swift */; };
 		D2D47FE492168B5BD5332232 /* TallyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C459C89EA7705BE5561E7FB8 /* TallyApp.swift */; };
 		DE46055E67A2FC0E2048E39A /* EntryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E600F7FE3C5117F345A2FDFD /* EntryRow.swift */; };
+		E2F1D57CFF00E6666C379AC9 /* CloudSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D97C942E81A35519FD10C7 /* CloudSync.swift */; };
 		FF6C3E328548A7270D83C745 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0438430608549D75B2F651AE /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,25 +42,26 @@
 
 /* Begin PBXFileReference section */
 		0438430608549D75B2F651AE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		065B4B7397C00AE5DDB3E1C8 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		08ADDFC1B0FCB4869E60380B /* ItemEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorView.swift; sourceTree = "<group>"; };
 		0E91360750E6493DD7621468 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1FBCC93C895D5DAAF35E7E33 /* Tally.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tally.entitlements; sourceTree = "<group>"; };
 		39AE22E7768DD1CD7B7F932F /* StatsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsEngine.swift; sourceTree = "<group>"; };
 		3CAE286A50A9D70E07550C74 /* ConsumableCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumableCategory.swift; sourceTree = "<group>"; };
 		3F6E3E570C896FE51137E3A7 /* ConsumptionEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumptionEntry.swift; sourceTree = "<group>"; };
 		46E01DF37CD02C2EC6B10B54 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		490969D9346917566D07D4DB /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
-		4AD9F270394C894B2AD0BCD6 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		4DCF1A5BC6FA366C4B658D35 /* Tally.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tally.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51519F0EA2E3324A4458254F /* ConsumablePreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumablePreset.swift; sourceTree = "<group>"; };
 		751B7932FC009F244A997B90 /* Consumable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Consumable.swift; sourceTree = "<group>"; };
-		79A3ED976A948708866B18F5 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
+		7F575993EA15D30937E5B831 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		899658700AACF342F75741BB /* ItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsView.swift; sourceTree = "<group>"; };
 		A1E8802CD8C4D30E2FCC8497 /* MoneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyTests.swift; sourceTree = "<group>"; };
 		B1CD328BED299FAC534928CD /* StatsEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsEngineTests.swift; sourceTree = "<group>"; };
+		B77668FF92619DB3AEF04525 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		BD07A89C9EF367D0B3BF4C56 /* TallyTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TallyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE5586D29EE812DD38AD6A05 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		C459C89EA7705BE5561E7FB8 /* TallyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TallyApp.swift; sourceTree = "<group>"; };
+		C7D97C942E81A35519FD10C7 /* CloudSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSync.swift; sourceTree = "<group>"; };
 		C9811277D3232508F032D826 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		D9487F191BBA698B3FC93F5B /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		E600F7FE3C5117F345A2FDFD /* EntryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryRow.swift; sourceTree = "<group>"; };
@@ -72,25 +72,17 @@
 		06FD7A5240D3587E5980AA05 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				79A3ED976A948708866B18F5 /* Color+Hex.swift */,
+				C7D97C942E81A35519FD10C7 /* CloudSync.swift */,
 				C9811277D3232508F032D826 /* Formatters.swift */,
 			);
 			path = Support;
-			sourceTree = "<group>";
-		};
-		26A01EADC2816EEE2F4DB4FD /* Design */ = {
-			isa = PBXGroup;
-			children = (
-				065B4B7397C00AE5DDB3E1C8 /* Components.swift */,
-				4AD9F270394C894B2AD0BCD6 /* Theme.swift */,
-			);
-			path = Design;
 			sourceTree = "<group>";
 		};
 		34EE4265E10AB09688EA4F1A /* TallyTests */ = {
 			isa = PBXGroup;
 			children = (
 				A1E8802CD8C4D30E2FCC8497 /* MoneyTests.swift */,
+				B77668FF92619DB3AEF04525 /* PersistenceTests.swift */,
 				B1CD328BED299FAC534928CD /* StatsEngineTests.swift */,
 			);
 			path = TallyTests;
@@ -108,11 +100,12 @@
 			isa = PBXGroup;
 			children = (
 				9A2F72C39DB705F7BB237887 /* App */,
-				26A01EADC2816EEE2F4DB4FD /* Design */,
 				F08AE960B56D6B900010977D /* Models */,
 				06FD7A5240D3587E5980AA05 /* Support */,
 				F0363684916D4FF2A1BC20AC /* Views */,
 				0E91360750E6493DD7621468 /* Assets.xcassets */,
+				7F575993EA15D30937E5B831 /* Info.plist */,
+				1FBCC93C895D5DAAF35E7E33 /* Tally.entitlements */,
 			);
 			path = Tally;
 			sourceTree = "<group>";
@@ -304,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BF44D5D54E83AD481FE8FF3B /* MoneyTests.swift in Sources */,
+				314255F2C1103950EDB98AB2 /* PersistenceTests.swift in Sources */,
 				78EDA158F08318F26FF58EFD /* StatsEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -312,8 +306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4DD1E8B8EEC59C34BE38C811 /* Color+Hex.swift in Sources */,
-				219BF70AD91BB52863F7A81B /* Components.swift in Sources */,
+				E2F1D57CFF00E6666C379AC9 /* CloudSync.swift in Sources */,
 				C49F28C24DA03688DBF1C7A8 /* Consumable.swift in Sources */,
 				139FFFA1A77407F2C43FA02E /* ConsumableCategory.swift in Sources */,
 				53632CAFAED577CF27A6A57E /* ConsumablePreset.swift in Sources */,
@@ -329,7 +322,6 @@
 				338E5CDE0001355937AB34F2 /* StatsEngine.swift in Sources */,
 				27BE98AAECA230D90785FBD3 /* StatsView.swift in Sources */,
 				D2D47FE492168B5BD5332232 /* TallyApp.swift in Sources */,
-				39A863A3EAD3F172889DD9CA /* Theme.swift in Sources */,
 				0C19F0C5F3C264BD61419483 /* TodayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -417,19 +409,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = Accent;
 				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_ENTITLEMENTS = Tally/Tally.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Tally;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Made for everyday counting.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Tally/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -511,19 +496,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = Accent;
 				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_ENTITLEMENTS = Tally/Tally.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Tally;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Made for everyday counting.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Tally/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

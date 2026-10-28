@@ -77,25 +77,11 @@ enum TallyDateFormat {
     static func time(_ date: Date) -> String {
         date.formatted(date: .omitted, time: .shortened)
     }
-
-    static func headerDate(_ date: Date = .now) -> String {
-        date.formatted(.dateTime.weekday(.wide).day().month(.wide))
-    }
-
-    static func shortDay(_ date: Date) -> String {
-        date.formatted(.dateTime.weekday(.narrow))
-    }
 }
 
 extension Date {
     func startOfDay(calendar: Calendar = .current) -> Date {
         calendar.startOfDay(for: self)
-    }
-}
-
-extension Int {
-    var formattedCount: String {
-        formatted(.number.grouping(.automatic))
     }
 }
 

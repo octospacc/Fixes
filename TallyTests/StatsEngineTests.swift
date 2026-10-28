@@ -25,13 +25,10 @@ final class StatsEngineTests: XCTestCase {
         ConsumptionRecord(
             itemID: itemID,
             itemName: name,
-            itemSymbolName: "cup.and.saucer.fill",
-            colorHex: "A77443",
             category: category,
             quantity: quantity,
             unitPriceCents: price,
-            timestamp: timestamp,
-            hasTime: true
+            timestamp: timestamp
         )
     }
 
@@ -70,7 +67,7 @@ final class StatsEngineTests: XCTestCase {
         XCTAssertEqual(report.activeDays, 2)
     }
 
-    func testItemsCategoriesAndWeekdays() {
+    func testItemRankingAndTotals() {
         let now = date(2026, 10, 27)
         let coffeeID = UUID()
         let records = [
@@ -84,13 +81,10 @@ final class StatsEngineTests: XCTestCase {
         XCTAssertEqual(report.items.count, 2)
         XCTAssertEqual(report.items.first?.name, "Chips")
         XCTAssertEqual(report.items.first?.quantity, 3)
-        XCTAssertEqual(report.categories.first?.category, .drinks)
-        XCTAssertEqual(report.categories.first?.quantity, 3)
-
-        // Monday 26 October has two items, Tuesday has four.
-        XCTAssertEqual(report.weekdays.first?.weekday, 2)
-        XCTAssertEqual(report.weekdays.first?.quantity, 2)
-        XCTAssertEqual(report.weekdays[1].quantity, 4)
+        XCTAssertEqual(report.items.last?.name, "Coffee")
+        XCTAssertEqual(report.items.last?.quantity, 3)
+        XCTAssertEqual(report.items.last?.spendCents, 300)
+        XCTAssertTrue(report.items.last?.hasPrice == true)
     }
 
     func testNoPricesMeansNoSpendingChart() {

@@ -1,20 +1,18 @@
 import Foundation
 import SwiftData
-import SwiftUI
 
 /// One logged occurrence of a consumable.
+///
+/// Price snapshots are kept on the entry so later price changes do not rewrite
+/// history. All stored properties have defaults for CloudKit compatibility.
 @Model
 final class ConsumptionEntry {
-    @Attribute(.unique) var id: UUID
-    var quantity: Int
-    /// Price per unit at the time of logging, in minor currency units.
-    /// Kept on the entry so later price changes do not rewrite history.
+    var id: UUID = UUID()
+    var quantity: Int = 1
     var unitPriceCents: Int?
-    var timestamp: Date
-    /// When false, the entry belongs to the day but has no meaningful time.
-    var hasTime: Bool
-    var note: String
-    var createdAt: Date
+    var timestamp: Date = Date()
+    var hasTime: Bool = true
+    var note: String = ""
     var consumable: Consumable?
 
     init(
@@ -24,8 +22,7 @@ final class ConsumptionEntry {
         timestamp: Date = .now,
         hasTime: Bool = true,
         unitPriceCents: Int? = nil,
-        note: String = "",
-        createdAt: Date = .now
+        note: String = ""
     ) {
         self.id = id
         self.consumable = consumable
@@ -34,7 +31,6 @@ final class ConsumptionEntry {
         self.hasTime = hasTime
         self.unitPriceCents = unitPriceCents
         self.note = note
-        self.createdAt = createdAt
     }
 
     var totalSpendCents: Int? {
@@ -47,14 +43,6 @@ final class ConsumptionEntry {
     }
 
     var itemName: String {
-        consumable?.name ?? "Removed item"
-    }
-
-    var itemSymbolName: String {
-        consumable?.symbolName ?? "questionmark"
-    }
-
-    var itemColor: Color {
-        consumable?.color ?? .gray
+        consumable?.name ?? "Deleted item"
     }
 }

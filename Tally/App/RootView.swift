@@ -1,10 +1,10 @@
 import SwiftUI
 import SwiftData
 
-enum AppSection: String, CaseIterable, Identifiable, Hashable {
+enum AppSection: String, CaseIterable, Identifiable {
     case today
     case history
-    case stats
+    case statistics
     case items
     case settings
 
@@ -14,43 +14,78 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .today: "Today"
         case .history: "History"
-        case .stats: "Statistics"
+        case .statistics: "Statistics"
         case .items: "Items"
         case .settings: "Settings"
         }
     }
 
-    var symbolName: String {
+    var systemImage: String {
         switch self {
-        case .today: "sun.max.fill"
-        case .history: "clock.arrow.circlepath"
-        case .stats: "chart.bar.xaxis"
-        case .items: "square.grid.2x2.fill"
-        case .settings: "gearshape.fill"
+        case .today: "calendar"
+        case .history: "clock"
+        case .statistics: "chart.bar"
+        case .items: "list.bullet"
+        case .settings: "gearshape"
         }
     }
 }
 
-@MainActor
-final class AppRouter: ObservableObject {
-    @Published var section: AppSection = .today
-}
-
 struct RootView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var router = AppRouter()
+    @State private var selection: AppSection = .today
 
     var body: some View {
         Group {
             #if os(macOS)
-            macOSRoot
-            #else
-            iOSRoot
+        NavigationSplitView {
+            List(selection: $selection) {
+                ForEach(AppSection.allCases) { section in
+                    Label(section.title, systemImage: section.systemImage)
+                        .tag(section)
+                }
+            }
+            .navigationTitle("Tally")
+        } detail: {
+            NavigationStack {
+                destination(for: selection)
+            }
+        }
+        #else
+        TabView(selection: $selection) {
+            NavigationStack {
+                TodayView(onAddItems: { selection = .items })
+            }
+            .tabItem { Label("Today", systemImage: AppSection.today.systemImage) }
+            .tag(AppSection.today)
+
+            NavigationStack {
+                HistoryView()
+            }
+            .tabItem { Label("History", systemImage: AppSection.history.systemImage) }
+            .tag(AppSection.history)
+
+            NavigationStack {
+                StatsView()
+            }
+            .tabItem { Label("Statistics", systemImage: AppSection.statistics.systemImage) }
+            .tag(AppSection.statistics)
+
+            NavigationStack {
+                ItemsView()
+            }
+            .tabItem { Label("Items", systemImage: AppSection.items.systemImage) }
+            .tag(AppSection.items)
+
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem { Label("Settings", systemImage: AppSection.settings.systemImage) }
+            .tag(AppSection.settings)
+            }
             #endif
         }
-        .tint(TallyTheme.accent)
         .task {
-            PresetSeeder.seedIfNeeded(in: modelContext)
             #if DEBUG
             DemoDataSeeder.seedIfRequested(in: modelContext)
             applyDebugLaunchArguments()
@@ -58,95 +93,16 @@ struct RootView: View {
         }
     }
 
-    #if os(macOS)
-    private var macOSRoot: some View {
-        NavigationSplitView {
-            VStack(spacing: 0) {
-                HStack {
-                    BrandLockup()
-                    Spacer()
-                }
-                .padding(.horizontal, 18)
-                .padding(.top, 18)
-                .padding(.bottom, 14)
-
-                List(selection: $router.section) {
-                    Section("Ledger") {
-                        ForEach([AppSection.today, .history, .stats]) { section in
-                            Label(section.title, systemImage: section.symbolName)
-                                .tag(section)
-                        }
-                    }
-                    Section("Your library") {
-                        Label(AppSection.items.title, systemImage: AppSection.items.symbolName)
-                            .tag(AppSection.items)
-                    }
-                    Section {
-                        Label(AppSection.settings.title, systemImage: AppSection.settings.symbolName)
-                            .tag(AppSection.settings)
-                    }
-                }
-                .listStyle(.sidebar)
-                .scrollContentBackground(.hidden)
-
-                HStack(spacing: 6) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 9, weight: .semibold))
-                    Text("Your data stays on this Mac")
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
-                }
-                .foregroundStyle(TallyTheme.muted)
-                .padding(.vertical, 12)
-            }
-            .background(TallyTheme.canvas)
-            .navigationSplitViewColumnWidth(min: 196, ideal: 218, max: 260)
-        } detail: {
-            NavigationStack {
-                destination(for: router.section)
-            }
-            .background(TallyTheme.canvas)
+    @ViewBuilder
+    private func destination(for section: AppSection) -> some View {
+        switch section {
+        case .today: TodayView(onAddItems: { selection = .items })
+        case .history: HistoryView()
+        case .statistics: StatsView()
+        case .items: ItemsView()
+        case .settings: SettingsView()
         }
-        .navigationSplitViewStyle(.balanced)
-        .environmentObject(router)
     }
-    #endif
-
-    #if !os(macOS)
-    private var iOSRoot: some View {
-        TabView(selection: $router.section) {
-            NavigationStack {
-                TodayView()
-            }
-            .tabItem { Label(AppSection.today.title, systemImage: AppSection.today.symbolName) }
-            .tag(AppSection.today)
-
-            NavigationStack {
-                HistoryView()
-            }
-            .tabItem { Label(AppSection.history.title, systemImage: AppSection.history.symbolName) }
-            .tag(AppSection.history)
-
-            NavigationStack {
-                StatsView()
-            }
-            .tabItem { Label(AppSection.stats.title, systemImage: AppSection.stats.symbolName) }
-            .tag(AppSection.stats)
-
-            NavigationStack {
-                ItemsView()
-            }
-            .tabItem { Label(AppSection.items.title, systemImage: AppSection.items.symbolName) }
-            .tag(AppSection.items)
-
-            NavigationStack {
-                SettingsView()
-            }
-            .tabItem { Label(AppSection.settings.title, systemImage: AppSection.settings.symbolName) }
-            .tag(AppSection.settings)
-        }
-        .environmentObject(router)
-    }
-    #endif
 
     #if DEBUG
     private func applyDebugLaunchArguments() {
@@ -154,18 +110,7 @@ struct RootView: View {
         guard let index = arguments.firstIndex(of: "-startTab"),
               arguments.indices.contains(index + 1),
               let section = AppSection(rawValue: arguments[index + 1]) else { return }
-        router.section = section
+        selection = section
     }
     #endif
-
-    @ViewBuilder
-    private func destination(for section: AppSection) -> some View {
-        switch section {
-        case .today: TodayView()
-        case .history: HistoryView()
-        case .stats: StatsView()
-        case .items: ItemsView()
-        case .settings: SettingsView()
-        }
-    }
 }

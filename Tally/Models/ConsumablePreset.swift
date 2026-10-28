@@ -1,60 +1,33 @@
 import Foundation
 import SwiftData
 
-/// Curated starting points offered on first launch and when adding an item.
+/// Curated starting points offered while adding an item.
 struct ConsumablePreset: Identifiable, Hashable {
     let id: String
     let name: String
-    let symbolName: String
-    let colorHex: String
     let category: ConsumableCategory
-    let suggestedPriceCents: Int?
 
-    init(
-        id: String,
-        name: String,
-        symbolName: String,
-        colorHex: String,
-        category: ConsumableCategory,
-        suggestedPriceCents: Int? = nil
-    ) {
-        self.id = id
-        self.name = name
-        self.symbolName = symbolName
-        self.colorHex = colorHex
-        self.category = category
-        self.suggestedPriceCents = suggestedPriceCents
-    }
-
-    func makeConsumable(sortOrder: Int) -> Consumable {
-        Consumable(
-            name: name,
-            symbolName: symbolName,
-            colorHex: colorHex,
-            category: category,
-            unitPriceCents: nil,
-            sortOrder: sortOrder
-        )
+    func makeConsumable() -> Consumable {
+        Consumable(name: name, category: category)
     }
 
     static let starterSet: [ConsumablePreset] = [
-        .init(id: "coffee", name: "Coffee", symbolName: "cup.and.saucer.fill", colorHex: "A77443", category: .drinks),
-        .init(id: "cigarettes", name: "Cigarettes", symbolName: "smoke.fill", colorHex: "B65B43", category: .smoking),
-        .init(id: "tea", name: "Tea", symbolName: "mug.fill", colorHex: "5D8A86", category: .drinks),
-        .init(id: "chips", name: "Chips", symbolName: "takeoutbag.and.cup.and.straw.fill", colorHex: "C7973A", category: .snacks),
-        .init(id: "scratch-card", name: "Scratch card", symbolName: "ticket.fill", colorHex: "826AA6", category: .gambling),
-        .init(id: "lunch-out", name: "Lunch out", symbolName: "fork.knife", colorHex: "667B5D", category: .food),
-        .init(id: "gaming-session", name: "Gaming session", symbolName: "gamecontroller.fill", colorHex: "5A739A", category: .gaming)
+        .init(id: "coffee", name: "Coffee", category: .drinks),
+        .init(id: "cigarettes", name: "Cigarettes", category: .smoking),
+        .init(id: "tea", name: "Tea", category: .drinks),
+        .init(id: "chips", name: "Chips", category: .snacks),
+        .init(id: "scratch-card", name: "Scratch card", category: .gambling),
+        .init(id: "lunch-out", name: "Lunch out", category: .food),
+        .init(id: "gaming-session", name: "Gaming session", category: .gaming)
     ]
 
-    /// Additional suggestions shown while creating a custom item.
     static let extraSuggestions: [ConsumablePreset] = [
-        .init(id: "beer", name: "Beer", symbolName: "beer.mug.fill", colorHex: "B58A3C", category: .drinks),
-        .init(id: "soda", name: "Soda", symbolName: "bubbles.and.sparkles.fill", colorHex: "8B6AAE", category: .drinks),
-        .init(id: "candy", name: "Candy", symbolName: "birthday.cake.fill", colorHex: "C26A72", category: .snacks),
-        .init(id: "takeaway-dinner", name: "Takeaway dinner", symbolName: "takeoutbag.and.cup.and.straw.fill", colorHex: "A45E48", category: .food),
-        .init(id: "online-purchase", name: "Online purchase", symbolName: "shippingbox.fill", colorHex: "6C7B6A", category: .other),
-        .init(id: "painkiller", name: "Painkiller", symbolName: "pill.fill", colorHex: "6D7F96", category: .wellness)
+        .init(id: "beer", name: "Beer", category: .drinks),
+        .init(id: "soda", name: "Soda", category: .drinks),
+        .init(id: "candy", name: "Candy", category: .snacks),
+        .init(id: "takeaway-dinner", name: "Takeaway dinner", category: .food),
+        .init(id: "online-purchase", name: "Online purchase", category: .other),
+        .init(id: "painkiller", name: "Painkiller", category: .wellness)
     ]
 
     static var allSuggestions: [ConsumablePreset] {
@@ -63,32 +36,22 @@ struct ConsumablePreset: Identifiable, Hashable {
 }
 
 @MainActor
-enum PresetSeeder {
-    private static let seedKey = "tally.didSeedStarterPresets.v1"
+enum StarterItems {
+    static func add(to context: ModelContext) {
+        let existing = (try? context.fetch(FetchDescriptor<Consumable>())) ?? []
+        let existingNames = Set(existing.map(\.normalizedName))
 
-    /// Seeds the seven starter items exactly once. An intentionally empty
-    /// library is never repopulated on a later launch.
-    static func seedIfNeeded(in context: ModelContext, defaults: UserDefaults = .standard) {
-        guard !defaults.bool(forKey: seedKey) else { return }
-
-        var descriptor = FetchDescriptor<Consumable>()
-        descriptor.fetchLimit = 1
-        let existing = (try? context.fetch(descriptor)) ?? []
-
-        if existing.isEmpty {
-            for (index, preset) in ConsumablePreset.starterSet.enumerated() {
-                context.insert(preset.makeConsumable(sortOrder: index))
-            }
-            try? context.save()
+        for preset in ConsumablePreset.starterSet where !existingNames.contains(preset.name.lowercased()) {
+            context.insert(preset.makeConsumable())
         }
-        defaults.set(true, forKey: seedKey)
+        try? context.save()
     }
 }
 
 #if DEBUG
 @MainActor
 enum DemoDataSeeder {
-    private static let demoKey = "tally.didSeedDemoData.v1"
+    private static let demoKey = "tally.didSeedDemoData.v2"
 
     /// Optional, deterministic sample history for screenshots and for trying
     /// out the statistics screen. Launch the debug app with `-demoData`.
@@ -97,11 +60,10 @@ enum DemoDataSeeder {
               !defaults.bool(forKey: demoKey) else { return }
         defaults.set(true, forKey: demoKey)
 
-        let descriptor = FetchDescriptor<Consumable>(sortBy: [SortDescriptor(\.sortOrder)])
-        var items = (try? context.fetch(descriptor)) ?? []
+        var items = (try? context.fetch(FetchDescriptor<Consumable>(sortBy: [SortDescriptor(\.createdAt)]))) ?? []
         if items.isEmpty {
-            PresetSeeder.seedIfNeeded(in: context, defaults: defaults)
-            items = (try? context.fetch(descriptor)) ?? []
+            StarterItems.add(to: context)
+            items = (try? context.fetch(FetchDescriptor<Consumable>(sortBy: [SortDescriptor(\.createdAt)]))) ?? []
         }
         guard !items.isEmpty else { return }
 
@@ -111,7 +73,7 @@ enum DemoDataSeeder {
         ]
         for item in items {
             if let preset = ConsumablePreset.allSuggestions.first(where: { $0.name == item.name }) {
-                item.unitPriceCents = priceByID[preset.id] == 0 ? nil : (priceByID[preset.id] ?? preset.suggestedPriceCents)
+                item.unitPriceCents = priceByID[preset.id] == 0 ? nil : priceByID[preset.id]
             }
         }
 

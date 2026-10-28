@@ -17,17 +17,9 @@ enum StatsRange: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .week: "Last 7 days"
-        case .month: "Last 30 days"
-        case .quarter: "Last 90 days"
-        }
-    }
-
-    var shortTitle: String {
-        switch self {
-        case .week: "7 days"
-        case .month: "30 days"
-        case .quarter: "90 days"
+        case .week: "Last 7 Days"
+        case .month: "Last 30 Days"
+        case .quarter: "Last 90 Days"
         }
     }
 }
@@ -38,36 +30,27 @@ struct ConsumptionRecord: Identifiable, Hashable {
     let id: UUID
     let itemID: UUID
     let itemName: String
-    let itemSymbolName: String
-    let colorHex: String
     let category: ConsumableCategory
     let quantity: Int
     let unitPriceCents: Int?
     let timestamp: Date
-    let hasTime: Bool
 
     init(
         id: UUID = UUID(),
         itemID: UUID,
         itemName: String,
-        itemSymbolName: String,
-        colorHex: String,
         category: ConsumableCategory,
         quantity: Int,
         unitPriceCents: Int?,
-        timestamp: Date,
-        hasTime: Bool
+        timestamp: Date
     ) {
         self.id = id
         self.itemID = itemID
         self.itemName = itemName
-        self.itemSymbolName = itemSymbolName
-        self.colorHex = colorHex
         self.category = category
         self.quantity = quantity
         self.unitPriceCents = unitPriceCents
         self.timestamp = timestamp
-        self.hasTime = hasTime
     }
 
     init(entry: ConsumptionEntry) {
@@ -75,13 +58,10 @@ struct ConsumptionRecord: Identifiable, Hashable {
             id: entry.id,
             itemID: entry.consumable?.id ?? UUID(),
             itemName: entry.itemName,
-            itemSymbolName: entry.itemSymbolName,
-            colorHex: entry.consumable?.colorHex ?? "7A7C74",
             category: entry.category,
             quantity: entry.quantity,
             unitPriceCents: entry.unitPriceCents,
-            timestamp: entry.timestamp,
-            hasTime: entry.hasTime
+            timestamp: entry.timestamp
         )
     }
 
@@ -98,20 +78,9 @@ struct DailyPoint: Identifiable {
     var id: Date { day }
 }
 
-struct CategoryStat: Identifiable {
-    let category: ConsumableCategory
-    let quantity: Int
-    let spendCents: Int
-    let hasPrice: Bool
-
-    var id: String { category.rawValue }
-}
-
 struct ItemStat: Identifiable {
     let itemID: UUID
     let name: String
-    let symbolName: String
-    let colorHex: String
     let category: ConsumableCategory
     let quantity: Int
     let entryCount: Int
@@ -119,15 +88,6 @@ struct ItemStat: Identifiable {
     let hasPrice: Bool
 
     var id: UUID { itemID }
-}
-
-struct WeekdayStat: Identifiable {
-    let weekday: Int
-    let shortLabel: String
-    let fullLabel: String
-    let quantity: Int
-
-    var id: Int { weekday }
 }
 
 struct StatsReport {
@@ -141,9 +101,7 @@ struct StatsReport {
     let activeDays: Int
     let dailyAverage: Double
     let dailyPoints: [DailyPoint]
-    let categories: [CategoryStat]
     let items: [ItemStat]
-    let weekdays: [WeekdayStat]
 
     var hasSpending: Bool { pricedEntryCount > 0 }
     var isEmpty: Bool { totalQuantity == 0 }
@@ -157,9 +115,8 @@ enum StatsEngine {
         calendar: Calendar = .current
     ) -> StatsReport {
         let today = calendar.startOfDay(for: now)
-        let fallbackStart = calendar.date(byAdding: .day, value: -(range.days - 1), to: today) ?? today
+        let start = calendar.date(byAdding: .day, value: -(range.days - 1), to: today) ?? today
         let end = calendar.date(byAdding: .day, value: 1, to: today) ?? now
-        let start = fallbackStart
 
         let filtered = records.filter { record in
             record.timestamp >= start && record.timestamp < end
@@ -174,17 +131,14 @@ enum StatsEngine {
 
         struct MutableItem {
             var name: String
-            var symbol: String
-            var colorHex: String
             var category: ConsumableCategory
-            var quantity: Int
-            var entryCount: Int
-            var spendCents: Int
-            var hasPrice: Bool
+            var quantity = 0
+            var entryCount = 0
+            var spendCents = 0
+            var hasPrice = false
         }
 
         var itemMap: [UUID: MutableItem] = [:]
-        var categoryMap: [ConsumableCategory: (quantity: Int, spendCents: Int, hasPrice: Bool)] = [:]
         var activeDays = Set<Date>()
         var totalQuantity = 0
         var totalSpendCents = 0
@@ -206,25 +160,13 @@ enum StatsEngine {
 
             var item = itemMap[record.itemID] ?? MutableItem(
                 name: record.itemName,
-                symbol: record.itemSymbolName,
-                colorHex: record.colorHex,
-                category: record.category,
-                quantity: 0,
-                entryCount: 0,
-                spendCents: 0,
-                hasPrice: false
+                category: record.category
             )
             item.quantity += record.quantity
             item.entryCount += 1
             item.spendCents += spend
             item.hasPrice = item.hasPrice || record.unitPriceCents != nil
             itemMap[record.itemID] = item
-
-            var categoryValue = categoryMap[record.category] ?? (0, 0, false)
-            categoryValue.quantity += record.quantity
-            categoryValue.spendCents += spend
-            categoryValue.hasPrice = categoryValue.hasPrice || record.unitPriceCents != nil
-            categoryMap[record.category] = categoryValue
         }
 
         let dailyPoints = dailyByDate
@@ -235,8 +177,6 @@ enum StatsEngine {
             ItemStat(
                 itemID: key,
                 name: value.name,
-                symbolName: value.symbol,
-                colorHex: value.colorHex,
                 category: value.category,
                 quantity: value.quantity,
                 entryCount: value.entryCount,
@@ -247,35 +187,6 @@ enum StatsEngine {
         .sorted {
             if $0.quantity == $1.quantity { return $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             return $0.quantity > $1.quantity
-        }
-
-        let categories = categoryMap.map { key, value in
-            CategoryStat(
-                category: key,
-                quantity: value.quantity,
-                spendCents: value.spendCents,
-                hasPrice: value.hasPrice
-            )
-        }
-        .sorted {
-            if $0.quantity == $1.quantity { return $0.category.title < $1.category.title }
-            return $0.quantity > $1.quantity
-        }
-
-        let weekdaySymbols = calendar.shortWeekdaySymbols
-        let weekdayFullSymbols = calendar.weekdaySymbols
-        let orderedWeekdayIndices = (0..<7).map { (calendar.firstWeekday - 1 + $0) % 7 }
-        let weekdayStats = orderedWeekdayIndices.map { symbolIndex in
-            let weekday = symbolIndex + 1
-            let total = dailyPoints
-                .filter { calendar.component(.weekday, from: $0.day) == weekday }
-                .reduce(0) { $0 + $1.quantity }
-            return WeekdayStat(
-                weekday: weekday,
-                shortLabel: weekdaySymbols[symbolIndex],
-                fullLabel: weekdayFullSymbols[symbolIndex],
-                quantity: total
-            )
         }
 
         return StatsReport(
@@ -289,9 +200,7 @@ enum StatsEngine {
             activeDays: activeDays.count,
             dailyAverage: Double(totalQuantity) / Double(range.days),
             dailyPoints: dailyPoints,
-            categories: categories,
-            items: items,
-            weekdays: weekdayStats
+            items: items
         )
     }
 }
