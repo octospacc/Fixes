@@ -1,12 +1,24 @@
 import SwiftUI
+import SwiftData
 import CloudKit
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Environment(\.cloudSyncEnabled) private var cloudSyncEnabled
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("currencyCode") private var currencyCode = Money.currencyCode()
+    
+    @Query(sort: [SortDescriptor(\ConsumptionEntry.timestamp, order: .reverse)]) private var entries: [ConsumptionEntry]
+    @Query private var items: [Consumable]
 
     @State private var accountStatus: CKAccountStatus?
     @State private var accountCheckFailed = false
+    
+    @State private var showingImporter = false
+    @State private var importAlertMessage: String?
+    @State private var showImportAlert = false
+    
+    @State private var showResetConfirmation = false
 
     private var currencyCodes: [String] {
         var codes = Set(Locale.commonISOCurrencyCodes)
@@ -80,14 +92,91 @@ struct SettingsView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            
+            Section("Data Management") {
+                if let exportURL = CSVManager.generateCSV(entries: entries) {
+                    ShareLink(item: exportURL) {
+                        Label("Export to CSV", systemImage: "square.and.arrow.up")
+                    }
+                } else {
+                    Label("Export to CSV", systemImage: "square.and.arrow.up")
+                        .foregroundStyle(.secondary)
+                }
+                
+                Button {
+                    showingImporter = true
+                } label: {
+                    Label("Import from CSV", systemImage: "square.and.arrow.down")
+                }
+            }
+            
+            Section("Danger Zone") {
+                Button(role: .destructive) {
+                    showResetConfirmation = true
+                } label: {
+                    Label("Erase All Data", systemImage: "trash")
+                        .foregroundStyle(.red)
+                }
+            }
 
             Section("About") {
                 LabeledContent("Version", value: appVersion)
             }
         }
+        #if os(macOS)
+        .formStyle(.grouped) // <--- Fixes the layout on macOS
+        #endif
         .navigationTitle("Settings")
         .task {
             await checkAccountStatus()
+        }
+        .fileImporter(
+            isPresented: $showingImporter,
+            allowedContentTypes: [.commaSeparatedText]
+        ) { result in
+            switch result {
+            case .success(let url):
+                if url.startAccessingSecurityScopedResource() {
+                    defer { url.stopAccessingSecurityScopedResource() }
+                    do {
+                        try CSVManager.importCSV(url: url, modelContext: modelContext, existingItems: items, existingEntries: entries)
+                        importAlertMessage = "Data successfully imported without duplicates!"
+                    } catch {
+                        importAlertMessage = "Failed to import CSV: \(error.localizedDescription)"
+                    }
+                } else {
+                    importAlertMessage = "Could not access the file securely."
+                }
+                showImportAlert = true
+            case .failure(let error):
+                importAlertMessage = "Failed to select file: \(error.localizedDescription)"
+                showImportAlert = true
+            }
+        }
+        .alert("Import Status", isPresented: $showImportAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            if let importAlertMessage {
+                Text(importAlertMessage)
+            }
+        }
+        .alert("Erase All Data", isPresented: $showResetConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Erase Data", role: .destructive) {
+                resetDatabase()
+            }
+        } message: {
+            Text("This will permanently delete all items and entries from your database. If iCloud sync is enabled, this will also delete the data across all your devices. This action cannot be undone.")
+        }
+    }
+
+    private func resetDatabase() {
+        do {
+            try modelContext.delete(model: ConsumptionEntry.self)
+            try modelContext.delete(model: Consumable.self)
+            try modelContext.save()
+        } catch {
+            print("Failed to clear database: \(error.localizedDescription)")
         }
     }
 

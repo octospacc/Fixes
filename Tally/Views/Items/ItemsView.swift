@@ -37,6 +37,8 @@ struct ItemsView: View {
                                 editorRoute = .edit(item)
                             } label: {
                                 itemRow(item)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .swipeActions(edge: .trailing) {
@@ -111,7 +113,6 @@ struct ItemsView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .contentShape(Rectangle())
     }
 
     private var deleteAlertBinding: Binding<Bool> {

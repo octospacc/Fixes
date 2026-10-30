@@ -11,7 +11,8 @@ struct TallyApp: App {
             Consumable.self,
             ConsumptionEntry.self
         ])
-
+        
+        /*
         let cloudConfiguration = ModelConfiguration(
             "Tally",
             schema: schema,
@@ -25,9 +26,10 @@ struct TallyApp: App {
             )
             cloudSyncEnabled = true
         } catch {
+        */
             // An unsigned or locally signed build has no CloudKit entitlement.
             // Keep the app usable locally; signed builds use iCloud.
-            print("CloudKit store unavailable, using local storage: \(error)")
+            // print("CloudKit store unavailable, using local storage: \(error)")
             let localConfiguration = ModelConfiguration(
                 "Tally",
                 schema: schema,
@@ -42,7 +44,7 @@ struct TallyApp: App {
             } catch {
                 fatalError("Unable to create the Tally data store: \(error)")
             }
-        }
+        // }
     }
 
     var body: some Scene {

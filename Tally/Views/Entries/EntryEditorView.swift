@@ -74,6 +74,9 @@ struct EntryEditorView: View {
                     Toggle("Include time", isOn: $hasTime)
                     if hasTime {
                         DatePicker("Time", selection: $timestamp, displayedComponents: .hourAndMinute)
+                            .onChange(of: timestamp) { _, newValue in
+                                self.timestamp = newValue
+                            }
                     }
                 }
 
@@ -84,6 +87,7 @@ struct EntryEditorView: View {
                         Text(Money.symbol(for: currencyCode))
                             .foregroundStyle(.secondary)
                         TextField("Optional", text: $priceText)
+                            .labelsHidden() // Fixes the hint appearing as a label on Mac
                             .monospacedDigit()
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: 90)
@@ -105,6 +109,7 @@ struct EntryEditorView: View {
 
                 Section("Note") {
                     TextField("Optional", text: $note, axis: .vertical)
+                        .labelsHidden() // Fixes the hint appearing as a label on Mac
                         .lineLimit(1...4)
                 }
 
@@ -113,9 +118,13 @@ struct EntryEditorView: View {
                         Button("Delete entry", role: .destructive) {
                             confirmingDelete = true
                         }
+                        .foregroundStyle(.red) // Enforces danger coloring on Mac
                     }
                 }
             }
+            #if os(macOS)
+            .formStyle(.grouped)
+            #endif
             .navigationTitle(entry == nil ? "New entry" : "Edit entry")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

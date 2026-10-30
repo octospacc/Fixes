@@ -40,6 +40,8 @@ struct EntryRow: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading) // Forces the bounding box to expand
+        .contentShape(Rectangle()) // Makes the empty whitespace fully tappable
         .accessibilityElement(children: .combine)
     }
 }

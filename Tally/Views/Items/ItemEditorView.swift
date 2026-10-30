@@ -69,6 +69,7 @@ struct ItemEditorView: View {
                         Text(Money.symbol(for: currencyCode))
                             .foregroundStyle(.secondary)
                         TextField("None", text: $priceText)
+                            .labelsHidden() // Fixes the hint appearing as a label on Mac
                             .monospacedDigit()
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: 90)
@@ -113,6 +114,9 @@ struct ItemEditorView: View {
                     }
                 }
             }
+            #if os(macOS)
+            .formStyle(.grouped)
+            #endif
             .navigationTitle(item == nil ? "New item" : "Edit item")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

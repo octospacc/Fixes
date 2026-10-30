@@ -50,7 +50,7 @@
 		3F6E3E570C896FE51137E3A7 /* ConsumptionEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumptionEntry.swift; sourceTree = "<group>"; };
 		46E01DF37CD02C2EC6B10B54 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		490969D9346917566D07D4DB /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
-		4DCF1A5BC6FA366C4B658D35 /* Tally.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tally.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DCF1A5BC6FA366C4B658D35 /* Tally.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tally.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51519F0EA2E3324A4458254F /* ConsumablePreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsumablePreset.swift; sourceTree = "<group>"; };
 		751B7932FC009F244A997B90 /* Consumable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Consumable.swift; sourceTree = "<group>"; };
 		7F575993EA15D30937E5B831 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -67,6 +67,14 @@
 		E600F7FE3C5117F345A2FDFD /* EntryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryRow.swift; sourceTree = "<group>"; };
 		F3ED7778EA7A47BBA615C926 /* EntryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		655A79843093CDEE00C2941A /* Utilities */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXGroup section */
 		06FD7A5240D3587E5980AA05 /* Support */ = {
@@ -99,6 +107,7 @@
 		4F8EC9F444C4FB48A05B004D /* Tally */ = {
 			isa = PBXGroup;
 			children = (
+				655A79843093CDEE00C2941A /* Utilities */,
 				9A2F72C39DB705F7BB237887 /* App */,
 				F08AE960B56D6B900010977D /* Models */,
 				06FD7A5240D3587E5980AA05 /* Support */,
@@ -236,6 +245,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				655A79843093CDEE00C2941A /* Utilities */,
+			);
 			name = Tally;
 			packageProductDependencies = (
 			);
@@ -253,9 +265,6 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					18C27FB10FE5BE0283218A33 = {
-						ProvisioningStyle = Manual;
-					};
-					A9C692CEE4C99A9267A1F79D = {
 						ProvisioningStyle = Manual;
 					};
 				};
@@ -411,17 +420,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_ENTITLEMENTS = Tally/Tally.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 23Z3P983RV;
 				INFOPLIST_FILE = Tally/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.andrea.tally;
+				PRODUCT_BUNDLE_IDENTIFIER = org.eu.octt.Tally;
 				PRODUCT_NAME = Tally;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -498,17 +509,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_ENTITLEMENTS = Tally/Tally.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 23Z3P983RV;
 				INFOPLIST_FILE = Tally/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.andrea.tally;
+				PRODUCT_BUNDLE_IDENTIFIER = org.eu.octt.Tally;
 				PRODUCT_NAME = Tally;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
