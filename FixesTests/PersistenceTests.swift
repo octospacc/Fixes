@@ -1,6 +1,6 @@
 import XCTest
 import SwiftData
-@testable import Tally
+@testable import Fixes
 
 final class PersistenceTests: XCTestCase {
     @MainActor

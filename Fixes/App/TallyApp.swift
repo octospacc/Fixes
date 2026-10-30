@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct TallyApp: App {
+struct FixesApp: App {
     private let modelContainer: ModelContainer
     private let cloudSyncEnabled: Bool
 
@@ -14,7 +14,7 @@ struct TallyApp: App {
         
         /*
         let cloudConfiguration = ModelConfiguration(
-            "Tally",
+            "Fixes",
             schema: schema,
             cloudKitDatabase: .private(CloudSync.containerIdentifier)
         )
@@ -31,7 +31,7 @@ struct TallyApp: App {
             // Keep the app usable locally; signed builds use iCloud.
             // print("CloudKit store unavailable, using local storage: \(error)")
             let localConfiguration = ModelConfiguration(
-                "Tally",
+                "Fixes",
                 schema: schema,
                 cloudKitDatabase: .none
             )
@@ -42,7 +42,7 @@ struct TallyApp: App {
                 )
                 cloudSyncEnabled = false
             } catch {
-                fatalError("Unable to create the Tally data store: \(error)")
+                fatalError("Unable to create the Fixes data store: \(error)")
             }
         // }
     }

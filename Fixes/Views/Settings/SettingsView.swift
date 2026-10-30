@@ -55,11 +55,11 @@ struct SettingsView: View {
             return "Data is stored on this device."
         }
         guard let accountStatus else {
-            return "Uses the iCloud account signed in on your devices. No Tally account is needed."
+            return "Uses the iCloud account signed in on your devices. No Fixes account is needed."
         }
         switch accountStatus {
         case .available:
-            return "Uses the iCloud account signed in on your devices. No Tally account is needed."
+            return "Uses the iCloud account signed in on your devices. No Fixes account is needed."
         case .noAccount:
             return "Sign in to iCloud on this device to sync."
         case .restricted, .couldNotDetermine, .temporarilyUnavailable:

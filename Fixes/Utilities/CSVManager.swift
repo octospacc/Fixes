@@ -23,7 +23,7 @@ class CSVManager {
             csvText += "\(entryId),\(timestamp),\(hasTime),\(item),\(category),\(quantity),\(price),\(note)\n"
         }
         
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("TallyExport.csv")
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("FixesExport.csv")
         do {
             try csvText.write(to: tempURL, atomically: true, encoding: .utf8)
             return tempURL

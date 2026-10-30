@@ -1,5 +1,5 @@
 import XCTest
-@testable import Tally
+@testable import Fixes
 
 final class StatsEngineTests: XCTestCase {
     private var calendar: Calendar {

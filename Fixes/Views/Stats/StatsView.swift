@@ -43,13 +43,14 @@ struct StatsView: View {
             }
 
             if report.isEmpty {
-                Section {
-                    ContentUnavailableView(
-                        "No data",
-                        systemImage: "chart.bar",
-                        description: Text("No entries in this range.")
-                    )
-                }
+                // Removed the Section wrapper and applied modifiers to center it cleanly
+                ContentUnavailableView(
+                    "No data",
+                    systemImage: "chart.bar",
+                    description: Text("No entries in this range.")
+                )
+                .frame(maxWidth: .infinity, minHeight: 240)
+                .listRowBackground(Color.clear)
             } else {
                 Section("Daily counts") {
                     Chart(report.dailyPoints) { point in

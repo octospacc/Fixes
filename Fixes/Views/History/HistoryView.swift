@@ -49,7 +49,7 @@ struct HistoryView: View {
             } else {
                 List {
                     ForEach(dayGroups) { group in
-                        Section(TallyDateFormat.historyHeader(group.day, calendar: calendar)) {
+                        Section(FixesDateFormat.historyHeader(group.day, calendar: calendar)) {
                             ForEach(group.entries) { entry in
                                 Button {
                                     editorRoute = .edit(entry)

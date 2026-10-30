@@ -45,7 +45,7 @@ struct RootView: View {
                         .tag(section)
                 }
             }
-            .navigationTitle("Tally")
+            .navigationTitle("Fixes")
         } detail: {
             NavigationStack {
                 destination(for: selection)

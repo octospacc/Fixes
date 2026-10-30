@@ -51,7 +51,7 @@ enum StarterItems {
 #if DEBUG
 @MainActor
 enum DemoDataSeeder {
-    private static let demoKey = "tally.didSeedDemoData.v2"
+    private static let demoKey = "fixes.didSeedDemoData.v2"
 
     /// Optional, deterministic sample history for screenshots and for trying
     /// out the statistics screen. Launch the debug app with `-demoData`.

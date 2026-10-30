@@ -64,7 +64,7 @@ enum Money {
     }
 }
 
-enum TallyDateFormat {
+enum FixesDateFormat {
     static func historyHeader(_ date: Date, calendar: Calendar = .current) -> String {
         if calendar.isDateInToday(date) { return "Today" }
         if calendar.isDateInYesterday(date) { return "Yesterday" }

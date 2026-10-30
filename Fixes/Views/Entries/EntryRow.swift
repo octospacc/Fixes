@@ -20,7 +20,7 @@ struct EntryRow: View {
                 }
 
                 HStack(spacing: 4) {
-                    Text(entry.hasTime ? TallyDateFormat.time(entry.timestamp) : "All day")
+                    Text(entry.hasTime ? FixesDateFormat.time(entry.timestamp) : "All day")
                     if !entry.note.trimmed.isEmpty {
                         Text("·")
                         Text(entry.note)
