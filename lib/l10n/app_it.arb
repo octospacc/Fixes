@@ -139,5 +139,36 @@
   "presetLunchName": "Pranzo fuori",
   "presetLunchCategory": "Cibo",
   "presetGamingName": "Sessione di gioco",
-  "presetGamingCategory": "Tempo libero"
+  "presetGamingCategory": "Tempo libero",
+  
+  "dropboxSection": "Sincronizzazione cloud (Dropbox)",
+  "dropboxNotConnected": "Non connesso",
+  "dropboxConnect": "Connetti a Dropbox",
+  "dropboxConnected": "Connesso a Dropbox",
+  "dropboxDisconnect": "Disconnetti",
+  "dropboxUpload": "Carica su Dropbox",
+  "dropboxDownload": "Scarica da Dropbox",
+  "dropboxUploadConfirm": "Sostituire il backup su Dropbox con i dati attuali?",
+  "dropboxDownloadConfirm": "Sostituire i dati locali con il backup da Dropbox? Le modifiche locali andranno perse.",
+  "dropboxUploaded": "Backup caricato su Dropbox",
+  "dropboxDownloaded": "Backup scaricato da Dropbox",
+  "dropboxNoBackup": "Nessun backup trovato su Dropbox",
+  "dropboxAuthTitle": "Connetti a Dropbox",
+  "dropboxAuthInstructions": "1. Apri la pagina di autorizzazione\n2. Approva l'app\n3. Copia il codice dall'URL\n4. Incollalo qui sotto",
+  "dropboxAuthOpen": "Apri pagina di autorizzazione",
+  "dropboxAuthCode": "Codice di autorizzazione",
+  "dropboxAuthPaste": "Incolla il codice dall'URL",
+  "dropboxAuthComplete": "Completa connessione",
+  "dropboxAuthError": "Impossibile connettersi: {error}",
+  "@dropboxAuthError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "dropboxUploadError": "Caricamento non riuscito: {error}",
+  "@dropboxUploadError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "dropboxDownloadError": "Download non riuscito: {error}",
+  "@dropboxDownloadError": {
+    "placeholders": { "error": { "type": "String" } }
+  }
 }

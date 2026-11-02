@@ -1,17 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../data/csv_manager.dart';
+import '../../data/dropbox_sync.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../data/app_info.dart';
 
-class SettingsView extends StatelessWidget {
+class SettingsView extends StatefulWidget {
   final Store store;
 
   const SettingsView({super.key, required this.store});
 
   @override
+  State<SettingsView> createState() => _SettingsViewState();
+}
+
+class _SettingsViewState extends State<SettingsView> {
+  bool _dropboxConnected = false;
+  bool _checkingDropbox = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshDropboxStatus();
+  }
+
+  Future<void> _refreshDropboxStatus() async {
+    final connected = await DropboxSync.isSignedIn();
+    if (!mounted) return;
+    setState(() {
+      _dropboxConnected = connected;
+      _checkingDropbox = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final store = widget.store;
 
     return ListenableBuilder(
       listenable: store,
@@ -86,6 +112,10 @@ class SettingsView extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
+            const SizedBox(height: 24),
+            _sectionHeader(l.dropboxSection),
+            const SizedBox(height: 8),
+            _buildDropboxSection(context, l),
             const SizedBox(height: 24),
             _sectionHeader(l.settingsData),
             const SizedBox(height: 8),
@@ -165,6 +195,165 @@ class SettingsView extends StatelessWidget {
     );
   }
 
+  Widget _buildDropboxSection(
+    BuildContext context,
+    AppLocalizations l,
+  ) {
+    if (_checkingDropbox) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (!_dropboxConnected) {
+      return ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.cloud_off),
+        title: Text(l.dropboxConnect),
+        subtitle: Text(l.dropboxNotConnected),
+        onTap: () => _startConnect(context, l),
+      );
+    }
+
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.cloud_done),
+          title: Text(l.dropboxConnected),
+          trailing: TextButton(
+            onPressed: () async {
+              await DropboxSync.signOut();
+              await _refreshDropboxStatus();
+            },
+            child: Text(l.dropboxDisconnect),
+          ),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.backup),
+          title: Text(l.dropboxUpload),
+          onTap: () => _upload(context, l),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.restore),
+          title: Text(l.dropboxDownload),
+          onTap: () => _download(context, l),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _startConnect(
+    BuildContext context,
+    AppLocalizations l,
+  ) async {
+    final verifier = DropboxSync.generateVerifier();
+    final url = DropboxSync.buildAuthUrl(verifier);
+
+    final code = await showDialog<String>(
+      context: context,
+      builder: (_) => _DropboxAuthDialog(authUrl: url),
+    );
+    if (code == null || code.isEmpty) return;
+
+    try {
+      await DropboxSync.completeAuth(code, verifier);
+      await _refreshDropboxStatus();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxConnected)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxAuthError(e.toString()))),
+      );
+    }
+  }
+
+  Future<void> _upload(
+    BuildContext context,
+    AppLocalizations l,
+  ) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Text(l.dropboxUploadConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.dropboxUpload),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+
+    try {
+      await DropboxSync.upload(widget.store.toSyncJson());
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxUploaded)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxUploadError(e.toString()))),
+      );
+    }
+  }
+
+  Future<void> _download(
+    BuildContext context,
+    AppLocalizations l,
+  ) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Text(l.dropboxDownloadConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.dropboxDownload),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+
+    try {
+      final json = await DropboxSync.download();
+      if (json == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.dropboxNoBackup)),
+        );
+        return;
+      }
+      await widget.store.mergeFromSync(json, force: true);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxDownloaded)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxDownloadError(e.toString()))),
+      );
+    }
+  }
+
   Widget _sectionHeader(String text) {
     return Text(
       text,
@@ -176,4 +365,76 @@ class SettingsView extends StatelessWidget {
       h == 0
           ? '00:00 (${l.settingsMidnight})'
           : '${h.toString().padLeft(2, '0')}:00';
+}
+
+class _DropboxAuthDialog extends StatefulWidget {
+  final String authUrl;
+
+  const _DropboxAuthDialog({required this.authUrl});
+
+  @override
+  State<_DropboxAuthDialog> createState() => _DropboxAuthDialogState();
+}
+
+class _DropboxAuthDialogState extends State<_DropboxAuthDialog> {
+  final _codeCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _codeCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
+    return AlertDialog(
+      title: Text(l.dropboxAuthTitle),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l.dropboxAuthInstructions),
+            const SizedBox(height: 12),
+            SelectableText(
+              widget.authUrl,
+              style: const TextStyle(fontSize: 10),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.open_in_browser),
+              label: Text(l.dropboxAuthOpen),
+              onPressed: () async {
+                final uri = Uri.parse(widget.authUrl);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _codeCtrl,
+              decoration: InputDecoration(
+                labelText: l.dropboxAuthCode,
+                hintText: l.dropboxAuthPaste,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.actionCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _codeCtrl.text.trim()),
+          child: Text(l.dropboxAuthComplete),
+        ),
+      ],
+    );
+  }
 }

@@ -679,6 +679,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leisure'**
   String get presetGamingCategory;
+
+  /// No description provided for @dropboxSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync (Dropbox)'**
+  String get dropboxSection;
+
+  /// No description provided for @dropboxNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get dropboxNotConnected;
+
+  /// No description provided for @dropboxConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Dropbox'**
+  String get dropboxConnect;
+
+  /// No description provided for @dropboxConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to Dropbox'**
+  String get dropboxConnected;
+
+  /// No description provided for @dropboxDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get dropboxDisconnect;
+
+  /// No description provided for @dropboxUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload to Dropbox'**
+  String get dropboxUpload;
+
+  /// No description provided for @dropboxDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download from Dropbox'**
+  String get dropboxDownload;
+
+  /// No description provided for @dropboxUploadConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the Dropbox backup with your current data?'**
+  String get dropboxUploadConfirm;
+
+  /// No description provided for @dropboxDownloadConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace your local data with the Dropbox backup? Local changes will be lost.'**
+  String get dropboxDownloadConfirm;
+
+  /// No description provided for @dropboxUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup uploaded to Dropbox'**
+  String get dropboxUploaded;
+
+  /// No description provided for @dropboxDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup downloaded from Dropbox'**
+  String get dropboxDownloaded;
+
+  /// No description provided for @dropboxNoBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup found on Dropbox'**
+  String get dropboxNoBackup;
+
+  /// No description provided for @dropboxAuthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Dropbox'**
+  String get dropboxAuthTitle;
+
+  /// No description provided for @dropboxAuthInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Open the authorization page\n2. Approve the app\n3. Copy the code from the URL\n4. Paste it below'**
+  String get dropboxAuthInstructions;
+
+  /// No description provided for @dropboxAuthOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open authorization page'**
+  String get dropboxAuthOpen;
+
+  /// No description provided for @dropboxAuthCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorization code'**
+  String get dropboxAuthCode;
+
+  /// No description provided for @dropboxAuthPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the code from the URL'**
+  String get dropboxAuthPaste;
+
+  /// No description provided for @dropboxAuthComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete connection'**
+  String get dropboxAuthComplete;
+
+  /// No description provided for @dropboxAuthError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect: {error}'**
+  String dropboxAuthError(String error);
+
+  /// No description provided for @dropboxUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed: {error}'**
+  String dropboxUploadError(String error);
+
+  /// No description provided for @dropboxDownloadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed: {error}'**
+  String dropboxDownloadError(String error);
 }
 
 class _AppLocalizationsDelegate

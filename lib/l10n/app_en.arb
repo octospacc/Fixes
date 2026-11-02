@@ -139,5 +139,36 @@
   "presetLunchName": "Lunch out",
   "presetLunchCategory": "Food",
   "presetGamingName": "Gaming session",
-  "presetGamingCategory": "Leisure"
+  "presetGamingCategory": "Leisure",
+  
+  "dropboxSection": "Cloud Sync (Dropbox)",
+  "dropboxNotConnected": "Not connected",
+  "dropboxConnect": "Connect to Dropbox",
+  "dropboxConnected": "Connected to Dropbox",
+  "dropboxDisconnect": "Disconnect",
+  "dropboxUpload": "Upload to Dropbox",
+  "dropboxDownload": "Download from Dropbox",
+  "dropboxUploadConfirm": "Replace the Dropbox backup with your current data?",
+  "dropboxDownloadConfirm": "Replace your local data with the Dropbox backup? Local changes will be lost.",
+  "dropboxUploaded": "Backup uploaded to Dropbox",
+  "dropboxDownloaded": "Backup downloaded from Dropbox",
+  "dropboxNoBackup": "No backup found on Dropbox",
+  "dropboxAuthTitle": "Connect to Dropbox",
+  "dropboxAuthInstructions": "1. Open the authorization page\n2. Approve the app\n3. Copy the code from the URL\n4. Paste it below",
+  "dropboxAuthOpen": "Open authorization page",
+  "dropboxAuthCode": "Authorization code",
+  "dropboxAuthPaste": "Paste the code from the URL",
+  "dropboxAuthComplete": "Complete connection",
+  "dropboxAuthError": "Could not connect: {error}",
+  "@dropboxAuthError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "dropboxUploadError": "Upload failed: {error}",
+  "@dropboxUploadError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "dropboxDownloadError": "Download failed: {error}",
+  "@dropboxDownloadError": {
+    "placeholders": { "error": { "type": "String" } }
+  }
 }

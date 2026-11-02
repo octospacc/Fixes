@@ -9,8 +9,10 @@ class Store extends ChangeNotifier {
   static const _kDayStartHour = 'dayStartHour';
   static const _kCurrency = 'currency';
   static const _kLanguageCode = 'languageCode';
+  static const _kLastModified = 'lastModified';
 
   static const _defaultCurrency = 'EUR';
+  static const _syncSchemaVersion = 1;
 
   final SharedPreferences _prefs;
   List<Item> _items = [];
@@ -18,6 +20,7 @@ class Store extends ChangeNotifier {
   int _dayStartHour = 0;
   String _currencyCode = _defaultCurrency;
   String _languageCode = '';
+  DateTime? _lastModified;
 
   Store._(this._prefs) {
     _load();
@@ -33,6 +36,9 @@ class Store extends ChangeNotifier {
   int get dayStartHour => _dayStartHour;
   String get currencyCode => _currencyCode;
   String get languageCode => _languageCode;
+  DateTime? get lastModified => _lastModified;
+
+  // ---------- Settings ----------
 
   Future<void> setDayStartHour(int hour) async {
     final clamped = hour.clamp(0, 23);
@@ -59,6 +65,8 @@ class Store extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // ---------- Queries ----------
 
   Item? itemById(String id) {
     for (final item in _items) {
@@ -93,6 +101,8 @@ class Store extends ChangeNotifier {
       ..sort((a, b) => b.date.compareTo(a.date));
   }
 
+  // ---------- Mutations ----------
+
   Future<void> saveItem(Item item) async {
     final i = _items.indexWhere((x) => x.id == item.id);
     if (i >= 0) {
@@ -100,6 +110,7 @@ class Store extends ChangeNotifier {
     } else {
       _items.add(item);
     }
+    _touch();
     await _persist();
     notifyListeners();
   }
@@ -107,6 +118,7 @@ class Store extends ChangeNotifier {
   Future<void> deleteItem(String id) async {
     _items.removeWhere((i) => i.id == id);
     _entries.removeWhere((e) => e.itemId == id);
+    _touch();
     await _persist();
     notifyListeners();
   }
@@ -118,12 +130,14 @@ class Store extends ChangeNotifier {
     } else {
       _entries.add(entry);
     }
+    _touch();
     await _persist();
     notifyListeners();
   }
 
   Future<void> deleteEntry(String id) async {
     _entries.removeWhere((e) => e.id == id);
+    _touch();
     await _persist();
     notifyListeners();
   }
@@ -131,10 +145,75 @@ class Store extends ChangeNotifier {
   Future<void> reset() async {
     _items = [];
     _entries = [];
+    _touch();
     await _prefs.remove(_kItems);
     await _prefs.remove(_kEntries);
+    await _prefs.setString(
+      _kLastModified,
+      _lastModified!.toIso8601String(),
+    );
     notifyListeners();
   }
+
+  // ---------- Sync ----------
+
+  /// Serialize the entire dataset for upload to Dropbox.
+  String toSyncJson() {
+    return jsonEncode({
+      'schemaVersion': _syncSchemaVersion,
+      'lastModified':
+          (_lastModified ?? DateTime.now().toUtc()).toUtc().toIso8601String(),
+      'items': _items.map((i) => i.toJson()).toList(),
+      'entries': _entries.map((e) => e.toJson()).toList(),
+    });
+  }
+
+  /// Merge a downloaded backup into local state. Last-write-wins unless
+  /// [force] is true, in which case remote always replaces local.
+  ///
+  /// Throws if the schema version is not supported.
+  Future<void> mergeFromSync(String jsonString, {bool force = false}) async {
+    final data = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    final schemaVersion = data['schemaVersion'] as int? ?? 0;
+    if (schemaVersion != _syncSchemaVersion) {
+      throw Exception(
+        'Unsupported backup schema version: $schemaVersion',
+      );
+    }
+
+    final remoteModified =
+        DateTime.tryParse(data['lastModified'] as String? ?? '')?.toUtc();
+    if (remoteModified == null) {
+      throw Exception('Backup is missing a lastModified timestamp');
+    }
+
+    if (!force &&
+        _lastModified != null &&
+        _lastModified!.toUtc().isAfter(remoteModified)) {
+      debugPrint('Local data is newer; skipping merge');
+      return;
+    }
+
+    _items = (data['items'] as List)
+        .map((j) => Item.fromJson(j as Map<String, dynamic>))
+        .toList();
+    _entries = (data['entries'] as List)
+        .map((j) => Entry.fromJson(j as Map<String, dynamic>))
+        .toList();
+    _lastModified = remoteModified;
+
+    await _persist();
+    await _prefs.setString(
+      _kLastModified,
+      _lastModified!.toIso8601String(),
+    );
+    notifyListeners();
+  }
+
+  // ---------- Internal ----------
+
+  void _touch() => _lastModified = DateTime.now().toUtc();
 
   void _load() {
     try {
@@ -162,6 +241,10 @@ class Store extends ChangeNotifier {
     _dayStartHour = (_prefs.getInt(_kDayStartHour) ?? 0).clamp(0, 23);
     _currencyCode = _prefs.getString(_kCurrency) ?? _defaultCurrency;
     _languageCode = _prefs.getString(_kLanguageCode) ?? '';
+    final lastModStr = _prefs.getString(_kLastModified);
+    if (lastModStr != null) {
+      _lastModified = DateTime.tryParse(lastModStr)?.toUtc();
+    }
   }
 
   Future<void> _persist() async {

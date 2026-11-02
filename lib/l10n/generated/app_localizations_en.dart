@@ -344,4 +344,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get presetGamingCategory => 'Leisure';
+
+  @override
+  String get dropboxSection => 'Cloud Sync (Dropbox)';
+
+  @override
+  String get dropboxNotConnected => 'Not connected';
+
+  @override
+  String get dropboxConnect => 'Connect to Dropbox';
+
+  @override
+  String get dropboxConnected => 'Connected to Dropbox';
+
+  @override
+  String get dropboxDisconnect => 'Disconnect';
+
+  @override
+  String get dropboxUpload => 'Upload to Dropbox';
+
+  @override
+  String get dropboxDownload => 'Download from Dropbox';
+
+  @override
+  String get dropboxUploadConfirm =>
+      'Replace the Dropbox backup with your current data?';
+
+  @override
+  String get dropboxDownloadConfirm =>
+      'Replace your local data with the Dropbox backup? Local changes will be lost.';
+
+  @override
+  String get dropboxUploaded => 'Backup uploaded to Dropbox';
+
+  @override
+  String get dropboxDownloaded => 'Backup downloaded from Dropbox';
+
+  @override
+  String get dropboxNoBackup => 'No backup found on Dropbox';
+
+  @override
+  String get dropboxAuthTitle => 'Connect to Dropbox';
+
+  @override
+  String get dropboxAuthInstructions =>
+      '1. Open the authorization page\n2. Approve the app\n3. Copy the code from the URL\n4. Paste it below';
+
+  @override
+  String get dropboxAuthOpen => 'Open authorization page';
+
+  @override
+  String get dropboxAuthCode => 'Authorization code';
+
+  @override
+  String get dropboxAuthPaste => 'Paste the code from the URL';
+
+  @override
+  String get dropboxAuthComplete => 'Complete connection';
+
+  @override
+  String dropboxAuthError(String error) {
+    return 'Could not connect: $error';
+  }
+
+  @override
+  String dropboxUploadError(String error) {
+    return 'Upload failed: $error';
+  }
+
+  @override
+  String dropboxDownloadError(String error) {
+    return 'Download failed: $error';
+  }
 }

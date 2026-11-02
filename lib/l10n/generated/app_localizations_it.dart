@@ -347,4 +347,76 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get presetGamingCategory => 'Tempo libero';
+
+  @override
+  String get dropboxSection => 'Sincronizzazione cloud (Dropbox)';
+
+  @override
+  String get dropboxNotConnected => 'Non connesso';
+
+  @override
+  String get dropboxConnect => 'Connetti a Dropbox';
+
+  @override
+  String get dropboxConnected => 'Connesso a Dropbox';
+
+  @override
+  String get dropboxDisconnect => 'Disconnetti';
+
+  @override
+  String get dropboxUpload => 'Carica su Dropbox';
+
+  @override
+  String get dropboxDownload => 'Scarica da Dropbox';
+
+  @override
+  String get dropboxUploadConfirm =>
+      'Sostituire il backup su Dropbox con i dati attuali?';
+
+  @override
+  String get dropboxDownloadConfirm =>
+      'Sostituire i dati locali con il backup da Dropbox? Le modifiche locali andranno perse.';
+
+  @override
+  String get dropboxUploaded => 'Backup caricato su Dropbox';
+
+  @override
+  String get dropboxDownloaded => 'Backup scaricato da Dropbox';
+
+  @override
+  String get dropboxNoBackup => 'Nessun backup trovato su Dropbox';
+
+  @override
+  String get dropboxAuthTitle => 'Connetti a Dropbox';
+
+  @override
+  String get dropboxAuthInstructions =>
+      '1. Apri la pagina di autorizzazione\n2. Approva l\'app\n3. Copia il codice dall\'URL\n4. Incollalo qui sotto';
+
+  @override
+  String get dropboxAuthOpen => 'Apri pagina di autorizzazione';
+
+  @override
+  String get dropboxAuthCode => 'Codice di autorizzazione';
+
+  @override
+  String get dropboxAuthPaste => 'Incolla il codice dall\'URL';
+
+  @override
+  String get dropboxAuthComplete => 'Completa connessione';
+
+  @override
+  String dropboxAuthError(String error) {
+    return 'Impossibile connettersi: $error';
+  }
+
+  @override
+  String dropboxUploadError(String error) {
+    return 'Caricamento non riuscito: $error';
+  }
+
+  @override
+  String dropboxDownloadError(String error) {
+    return 'Download non riuscito: $error';
+  }
 }
