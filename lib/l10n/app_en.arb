@@ -140,7 +140,7 @@
   "presetLunchCategory": "Food",
   "presetGamingName": "Gaming session",
   "presetGamingCategory": "Leisure",
-  
+
   "dropboxSection": "Cloud Sync (Dropbox)",
   "dropboxNotConnected": "Not connected",
   "dropboxConnect": "Connect to Dropbox",
@@ -170,5 +170,12 @@
   "dropboxDownloadError": "Download failed: {error}",
   "@dropboxDownloadError": {
     "placeholders": { "error": { "type": "String" } }
+  },
+  "dropboxAllSynced": "All changes synced",
+  "dropboxUnsynced": "Local changes not yet synced",
+  "dropboxNeverSynced": "Never synced",
+  "dropboxLastSynced": "Last synced {date}",
+  "@dropboxLastSynced": {
+    "placeholders": { "date": { "type": "String" } }
   }
 }

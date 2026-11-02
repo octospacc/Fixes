@@ -140,7 +140,7 @@
   "presetLunchCategory": "Cibo",
   "presetGamingName": "Sessione di gioco",
   "presetGamingCategory": "Tempo libero",
-  
+
   "dropboxSection": "Sincronizzazione cloud (Dropbox)",
   "dropboxNotConnected": "Non connesso",
   "dropboxConnect": "Connetti a Dropbox",
@@ -170,5 +170,12 @@
   "dropboxDownloadError": "Download non riuscito: {error}",
   "@dropboxDownloadError": {
     "placeholders": { "error": { "type": "String" } }
+  },
+  "dropboxAllSynced": "Tutte le modifiche sincronizzate",
+  "dropboxUnsynced": "Modifiche locali non ancora sincronizzate",
+  "dropboxNeverSynced": "Mai sincronizzato",
+  "dropboxLastSynced": "Ultima sincronizzazione: {date}",
+  "@dropboxLastSynced": {
+    "placeholders": { "date": { "type": "String" } }
   }
 }

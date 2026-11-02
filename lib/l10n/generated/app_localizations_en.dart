@@ -416,4 +416,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String dropboxDownloadError(String error) {
     return 'Download failed: $error';
   }
+
+  @override
+  String get dropboxAllSynced => 'All changes synced';
+
+  @override
+  String get dropboxUnsynced => 'Local changes not yet synced';
+
+  @override
+  String get dropboxNeverSynced => 'Never synced';
+
+  @override
+  String dropboxLastSynced(String date) {
+    return 'Last synced $date';
+  }
 }

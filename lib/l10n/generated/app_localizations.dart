@@ -805,6 +805,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download failed: {error}'**
   String dropboxDownloadError(String error);
+
+  /// No description provided for @dropboxAllSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'All changes synced'**
+  String get dropboxAllSynced;
+
+  /// No description provided for @dropboxUnsynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Local changes not yet synced'**
+  String get dropboxUnsynced;
+
+  /// No description provided for @dropboxNeverSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Never synced'**
+  String get dropboxNeverSynced;
+
+  /// No description provided for @dropboxLastSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {date}'**
+  String dropboxLastSynced(String date);
 }
 
 class _AppLocalizationsDelegate

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../data/app_info.dart';
 import '../../data/csv_manager.dart';
 import '../../data/dropbox_sync.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../data/app_info.dart';
 
 class SettingsView extends StatefulWidget {
   final Store store;
@@ -195,10 +196,7 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  Widget _buildDropboxSection(
-    BuildContext context,
-    AppLocalizations l,
-  ) {
+  Widget _buildDropboxSection(BuildContext context, AppLocalizations l) {
     if (_checkingDropbox) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 16),
@@ -216,6 +214,10 @@ class _SettingsViewState extends State<SettingsView> {
       );
     }
 
+    final store = widget.store;
+    final hasUnsynced = store.hasUnsyncedChanges;
+    final error = Theme.of(context).colorScheme.error;
+
     return Column(
       children: [
         ListTile(
@@ -230,6 +232,7 @@ class _SettingsViewState extends State<SettingsView> {
             child: Text(l.dropboxDisconnect),
           ),
         ),
+        _buildSyncStatus(context, l, store, hasUnsynced, error),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.backup),
@@ -243,6 +246,39 @@ class _SettingsViewState extends State<SettingsView> {
           onTap: () => _download(context, l),
         ),
       ],
+    );
+  }
+
+  Widget _buildSyncStatus(
+    BuildContext context,
+    AppLocalizations l,
+    Store store,
+    bool hasUnsynced,
+    Color error,
+  ) {
+    final locale = Localizations.localeOf(context).toString();
+    final dateFormat =
+        DateFormat.yMd(locale).add_jm();
+
+    final String title =
+        hasUnsynced ? l.dropboxUnsynced : l.dropboxAllSynced;
+    final String subtitle = store.lastSynced == null
+        ? l.dropboxNeverSynced
+        : l.dropboxLastSynced(
+            dateFormat.format(store.lastSynced!.toLocal()),
+          );
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(
+        hasUnsynced ? Icons.sync_problem : Icons.sync,
+        color: hasUnsynced ? error : null,
+      ),
+      title: Text(
+        title,
+        style: hasUnsynced ? TextStyle(color: error) : null,
+      ),
+      subtitle: Text(subtitle),
     );
   }
 
@@ -274,10 +310,7 @@ class _SettingsViewState extends State<SettingsView> {
     }
   }
 
-  Future<void> _upload(
-    BuildContext context,
-    AppLocalizations l,
-  ) async {
+  Future<void> _upload(BuildContext context, AppLocalizations l) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -298,6 +331,7 @@ class _SettingsViewState extends State<SettingsView> {
 
     try {
       await DropboxSync.upload(widget.store.toSyncJson());
+      await widget.store.markSynced();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.dropboxUploaded)),
@@ -310,10 +344,7 @@ class _SettingsViewState extends State<SettingsView> {
     }
   }
 
-  Future<void> _download(
-    BuildContext context,
-    AppLocalizations l,
-  ) async {
+  Future<void> _download(BuildContext context, AppLocalizations l) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -342,6 +373,7 @@ class _SettingsViewState extends State<SettingsView> {
         return;
       }
       await widget.store.mergeFromSync(json, force: true);
+      await widget.store.markSynced();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.dropboxDownloaded)),

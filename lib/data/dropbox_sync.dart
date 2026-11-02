@@ -49,7 +49,7 @@ class DropboxSync {
       'response_type': 'code',
       'code_challenge': challenge,
       'code_challenge_method': 'S256',
-      'redirect_uri': 'https://localhost',
+      // 'redirect_uri': 'https://localhost',
       'token_access_type': 'offline',
     };
     final uri = Uri.https('www.dropbox.com', '/oauth2/authorize', params);
@@ -66,7 +66,7 @@ class DropboxSync {
         'grant_type': 'authorization_code',
         'code_verifier': verifier,
         'client_id': _appKey,
-        'redirect_uri': 'https://localhost',
+        // 'redirect_uri': 'https://localhost',
       },
     );
 

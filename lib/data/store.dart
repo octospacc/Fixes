@@ -10,6 +10,7 @@ class Store extends ChangeNotifier {
   static const _kCurrency = 'currency';
   static const _kLanguageCode = 'languageCode';
   static const _kLastModified = 'lastModified';
+  static const _kLastSynced = 'lastSynced';
 
   static const _defaultCurrency = 'EUR';
   static const _syncSchemaVersion = 1;
@@ -21,6 +22,7 @@ class Store extends ChangeNotifier {
   String _currencyCode = _defaultCurrency;
   String _languageCode = '';
   DateTime? _lastModified;
+  DateTime? _lastSynced;
 
   Store._(this._prefs) {
     _load();
@@ -37,6 +39,18 @@ class Store extends ChangeNotifier {
   String get currencyCode => _currencyCode;
   String get languageCode => _languageCode;
   DateTime? get lastModified => _lastModified;
+  DateTime? get lastSynced => _lastSynced;
+
+  /// True when local data has changed since the last successful Dropbox
+  /// upload or download, or has never been synced at all.
+  bool get hasUnsyncedChanges {
+    if (_lastSynced == null) {
+      return _items.isNotEmpty || _entries.isNotEmpty;
+    }
+    final modified = _lastModified;
+    if (modified == null) return false;
+    return modified.isAfter(_lastSynced!);
+  }
 
   // ---------- Settings ----------
 
@@ -170,16 +184,12 @@ class Store extends ChangeNotifier {
 
   /// Merge a downloaded backup into local state. Last-write-wins unless
   /// [force] is true, in which case remote always replaces local.
-  ///
-  /// Throws if the schema version is not supported.
   Future<void> mergeFromSync(String jsonString, {bool force = false}) async {
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
     final schemaVersion = data['schemaVersion'] as int? ?? 0;
     if (schemaVersion != _syncSchemaVersion) {
-      throw Exception(
-        'Unsupported backup schema version: $schemaVersion',
-      );
+      throw Exception('Unsupported backup schema version: $schemaVersion');
     }
 
     final remoteModified =
@@ -208,6 +218,14 @@ class Store extends ChangeNotifier {
       _kLastModified,
       _lastModified!.toIso8601String(),
     );
+    notifyListeners();
+  }
+
+  /// Call after a successful Dropbox upload or download. Updates the
+  /// "last synced" clock and clears [hasUnsyncedChanges].
+  Future<void> markSynced() async {
+    _lastSynced = DateTime.now().toUtc();
+    await _prefs.setString(_kLastSynced, _lastSynced!.toIso8601String());
     notifyListeners();
   }
 
@@ -244,6 +262,10 @@ class Store extends ChangeNotifier {
     final lastModStr = _prefs.getString(_kLastModified);
     if (lastModStr != null) {
       _lastModified = DateTime.tryParse(lastModStr)?.toUtc();
+    }
+    final lastSyncStr = _prefs.getString(_kLastSynced);
+    if (lastSyncStr != null) {
+      _lastSynced = DateTime.tryParse(lastSyncStr)?.toUtc();
     }
   }
 
