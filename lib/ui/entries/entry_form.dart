@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../data/category_icons.dart';
 import '../../data/models.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class EntryForm extends StatefulWidget {
   final Store store;
@@ -113,13 +116,15 @@ class _EntryFormState extends State<EntryForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final items = widget.store.items;
+    final locale = Localizations.localeOf(context).toString();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.entry == null ? 'New entry' : 'Edit entry'),
+        title: Text(widget.entry == null ? l.entryNew : l.entryEdit),
         actions: [
-          TextButton(onPressed: _save, child: const Text('Save')),
+          TextButton(onPressed: _save, child: Text(l.actionSave)),
         ],
       ),
       body: ListView(
@@ -127,16 +132,31 @@ class _EntryFormState extends State<EntryForm> {
         children: [
           DropdownButtonFormField<String>(
             value: _itemId.isEmpty ? null : _itemId,
+            isExpanded: true,
             items: items
-                .map((i) =>
-                    DropdownMenuItem(value: i.id, child: Text(i.name)))
+                .map((i) => DropdownMenuItem(
+                      value: i.id,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(iconForCategory(i.category), size: 18),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              i.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ))
                 .toList(),
             onChanged: (v) {
               if (v != null) setState(() => _itemId = v);
             },
-            decoration: const InputDecoration(
-              labelText: 'Item',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l.entryItemLabel,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -144,7 +164,7 @@ class _EntryFormState extends State<EntryForm> {
             children: [
               Expanded(
                 child: Text(
-                  'Quantity: ${_quantity.toStringAsFixed(0)}',
+                  l.entryQuantity,
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
@@ -153,6 +173,7 @@ class _EntryFormState extends State<EntryForm> {
                 onPressed: () => setState(
                     () => _quantity = (_quantity - 1).clamp(1, 999)),
               ),
+              Text(_quantity.toStringAsFixed(0)),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
                 onPressed: () => setState(() => _quantity += 1),
@@ -162,30 +183,32 @@ class _EntryFormState extends State<EntryForm> {
           const SizedBox(height: 8),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Date'),
-            subtitle: Text('${_date.day}/${_date.month}/${_date.year}'),
+            title: Text(l.entryDate),
+            subtitle: Text(
+              DateFormat.yMd(locale).format(_date),
+            ),
             trailing: TextButton(
               onPressed: _pickDate,
-              child: const Text('Change'),
+              child: Text(l.actionChange),
             ),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Include time'),
+            title: Text(l.entryIncludeTime),
             value: _hasTime,
             onChanged: (v) => setState(() => _hasTime = v),
           ),
           if (_hasTime)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Time'),
+              title: Text(l.entryTime),
               subtitle: Text(
                 '${_date.hour.toString().padLeft(2, '0')}:'
                 '${_date.minute.toString().padLeft(2, '0')}',
               ),
               trailing: TextButton(
                 onPressed: _pickTime,
-                child: const Text('Change'),
+                child: Text(l.actionChange),
               ),
             ),
           const SizedBox(height: 16),
@@ -193,18 +216,18 @@ class _EntryFormState extends State<EntryForm> {
             controller: _priceCtrl,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Price per unit',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l.entryPricePerUnit,
+              border: const OutlineInputBorder(),
             ),
             onChanged: (v) => _price = double.tryParse(v),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _noteCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Note',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l.entryNote,
+              border: const OutlineInputBorder(),
             ),
             onChanged: (v) => _note = v,
           ),

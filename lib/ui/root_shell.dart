@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/store.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'entries/entry_form.dart';
 import 'history/history_view.dart';
 import 'items/item_form.dart';
@@ -20,45 +21,42 @@ class RootShell extends StatefulWidget {
 class _RootShellState extends State<RootShell> {
   int _index = 0;
 
-  static const _titles = [
-    'Today',
-    'History',
-    'Statistics',
-    'Items',
-    'Settings',
-  ];
-
-  Widget? _buildFab() {
-    switch (_index) {
-      case 0:
-        return FloatingActionButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => EntryForm(store: widget.store),
-            ),
-          ),
-          tooltip: 'Add entry',
-          child: const Icon(Icons.add),
-        );
-      case 3:
-        return FloatingActionButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => ItemForm(store: widget.store),
-            ),
-          ),
-          tooltip: 'Add item',
-          child: const Icon(Icons.add),
-        );
-      default:
-        return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final titles = [
+      l.tabToday,
+      l.tabHistory,
+      l.tabStatistics,
+      l.tabItems,
+      l.tabSettings,
+    ];
+
+    Widget? fab;
+    if (_index == 0) {
+      fab = FloatingActionButton(
+        tooltip: l.fabAddEntry,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => EntryForm(store: widget.store),
+          ),
+        ),
+        child: const Icon(Icons.add),
+      );
+    } else if (_index == 3) {
+      fab = FloatingActionButton(
+        tooltip: l.fabAddItem,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ItemForm(store: widget.store),
+          ),
+        ),
+        child: const Icon(Icons.add),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_index])),
+      appBar: AppBar(title: Text(titles[_index])),
       body: IndexedStack(
         index: _index,
         children: [
@@ -69,16 +67,31 @@ class _RootShellState extends State<RootShell> {
           SettingsView(store: widget.store),
         ],
       ),
-      floatingActionButton: _buildFab(),
+      floatingActionButton: fab,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.today), label: 'Today'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-          NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Stats'),
-          NavigationDestination(icon: Icon(Icons.list), label: 'Items'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.today),
+            label: l.tabToday,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.history),
+            label: l.tabHistory,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.bar_chart),
+            label: l.tabStatistics,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.list),
+            label: l.tabItems,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings),
+            label: l.tabSettings,
+          ),
         ],
       ),
     );

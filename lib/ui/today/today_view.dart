@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/money.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../entries/entry_tile.dart';
 import 'quick_add_row.dart';
 
@@ -11,6 +12,8 @@ class TodayView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return ListenableBuilder(
       listenable: store,
       builder: (context, _) {
@@ -21,6 +24,7 @@ class TodayView extends StatelessWidget {
           0,
           (s, e) => s + (e.pricePerUnit ?? 0) * e.quantity,
         );
+        final locale = Localizations.localeOf(context).toString();
 
         return ListView(
           children: [
@@ -31,20 +35,23 @@ class TodayView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _Stat(label: 'Entries', value: '$count'),
+                  _Stat(label: l.todayEntries, value: '$count'),
                   _Stat(
-                    label: 'Spent',
-                    value: Money.format(spending,
-                        currencyCode: store.currencyCode),
+                    label: l.todaySpent,
+                    value: Money.format(
+                      spending,
+                      currencyCode: store.currencyCode,
+                      locale: locale,
+                    ),
                   ),
                 ],
               ),
             ),
             const Divider(),
             if (entries.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(child: Text('No entries yet today')),
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Center(child: Text(l.todayEmpty)),
               )
             else
               ...entries.map((e) => EntryTile(store: store, entry: e)),

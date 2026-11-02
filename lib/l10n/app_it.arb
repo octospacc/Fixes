@@ -1,0 +1,143 @@
+{
+  "@@locale": "it",
+
+  "appTitle": "Fixes",
+
+  "tabToday": "Oggi",
+  "tabHistory": "Cronologia",
+  "tabStatistics": "Statistiche",
+  "tabItems": "Articoli",
+  "tabSettings": "Impostazioni",
+
+  "todayEntries": "Voci",
+  "todaySpent": "Speso",
+  "todayEmpty": "Nessuna voce per oggi",
+  "quickAddEmpty": "Aggiungi articoli dalla scheda Articoli per usare l'aggiunta rapida.",
+
+  "historySearchHint": "Cerca voci",
+  "historyEmpty": "Nessuna voce",
+  "historyToday": "Oggi",
+  "historyYesterday": "Ieri",
+
+  "statsRange7": "7 giorni",
+  "statsRange30": "30 giorni",
+  "statsRange90": "90 giorni",
+  "statsTotalEntries": "Voci totali",
+  "statsTotalSpent": "Totale speso",
+  "statsDailyCount": "Conteggio giornaliero",
+  "statsTopItems": "Articoli principali",
+  "statsEmpty": "Nessun dato",
+
+  "itemsEmpty": "Nessun articolo",
+
+  "settingsCurrency": "Valuta",
+  "settingsLanguage": "Lingua",
+  "settingsLanguageSystem": "Predefinita di sistema",
+  "settingsDayBoundary": "Inizio giornata",
+  "settingsDayStartsAt": "La giornata inizia alle",
+  "settingsDayBoundaryHint": "Usato per raggruppare in Oggi e Cronologia. Non modifica i dati salvati.",
+  "settingsMidnight": "mezzanotte",
+  "settingsData": "Dati",
+  "settingsExportCsv": "Esporta CSV",
+  "settingsImportCsv": "Importa CSV",
+  "settingsResetData": "Ripristina dati",
+  "settingsResetDataSubtitle": "Elimina tutte le voci e gli articoli",
+  "settingsAppLabel": "App",
+  "settingsVersionLabel": "Versione",
+  "settingsAppName": "Fixes",
+
+  "actionSave": "Salva",
+  "actionCancel": "Annulla",
+  "actionDelete": "Elimina",
+  "actionChange": "Cambia",
+
+  "resetTitle": "Ripristinare i dati?",
+  "resetBody": "Tutte le voci e gli articoli verranno eliminati definitivamente. Le impostazioni (valuta, inizio giornata) vengono mantenute. Non è possibile annullare.",
+  "resetConfirm": "Ripristina",
+
+  "entryNew": "Nuova voce",
+  "entryEdit": "Modifica voce",
+  "entryItemLabel": "Articolo",
+  "entryQuantity": "Quantità",
+  "entryDate": "Data",
+  "entryTime": "Ora",
+  "entryIncludeTime": "Includi ora",
+  "entryPricePerUnit": "Prezzo unitario",
+  "entryNote": "Nota",
+
+  "itemNew": "Nuovo articolo",
+  "itemEdit": "Modifica articolo",
+  "itemName": "Nome",
+  "itemCategory": "Categoria",
+  "itemDefaultPrice": "Prezzo predefinito",
+  "itemSuggestions": "Suggerimenti",
+
+  "tileUnknownItem": "Sconosciuto",
+  "tileAllDay": "Tutto il giorno",
+  "tileMore": "Altro",
+  "tileUndo": "Annulla",
+  "tileDeleted": "Eliminato \"{name}\"",
+  "@tileDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fabAddEntry": "Aggiungi voce",
+  "fabAddItem": "Aggiungi articolo",
+
+  "itemDeleteTitle": "Eliminare \"{name}\"?",
+  "@itemDeleteTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "itemDeleteBodyEmpty": "Questo articolo verrà eliminato definitivamente.",
+  "itemDeleteBodyWithEntries": "Questo articolo e le sue {count, plural, =1{1 voce} other{{count} voci}} verranno eliminati definitivamente.",
+  "@itemDeleteBodyWithEntries": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "itemDeleted": "Eliminato \"{name}\"",
+  "@itemDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "csvImportCancelled": "Importazione annullata",
+  "csvImportReadFailed": "Impossibile leggere il contenuto del file. Riprova a selezionare il file.",
+  "csvImportEmptyFile": "Il file CSV è vuoto",
+  "csvImportNoRows": "Il CSV non contiene righe",
+  "csvImportMissingEntryId": "Colonna \"entry_id\" mancante. Intestazione: {header}",
+  "@csvImportMissingEntryId": {
+    "placeholders": { "header": { "type": "String" } }
+  },
+  "csvImportMissingItemId": "Colonna \"item_id\" mancante.",
+  "csvImportMissingDate": "Colonna \"date\" mancante.",
+  "csvImportNothingImported": "Nessun elemento importato. Le voci potrebbero essere già presenti.",
+  "csvImportFailed": "Importazione non riuscita: {error}",
+  "@csvImportFailed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "csvImportedEntries": "{count, plural, =1{Importata 1 voce} other{Importate {count} voci}}",
+  "@csvImportedEntries": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvImportedNewItems": "{count, plural, =1{1 nuovo articolo} other{{count} nuovi articoli}}",
+  "@csvImportedNewItems": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvSkippedRows": "{count, plural, =1{1 saltata} other{{count} saltate}}",
+  "@csvSkippedRows": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "presetCoffeeName": "Caffè",
+  "presetCoffeeCategory": "Bevande",
+  "presetCigaretteName": "Sigaretta",
+  "presetCigaretteCategory": "Fumo",
+  "presetTeaName": "Tè",
+  "presetTeaCategory": "Bevande",
+  "presetChipsName": "Patatine",
+  "presetChipsCategory": "Snack",
+  "presetScratchName": "Gratta e vinci",
+  "presetScratchCategory": "Gioco d'azzardo",
+  "presetLunchName": "Pranzo fuori",
+  "presetLunchCategory": "Cibo",
+  "presetGamingName": "Sessione di gioco",
+  "presetGamingCategory": "Tempo libero"
+}

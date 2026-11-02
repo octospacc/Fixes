@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class QuickAddRow extends StatelessWidget {
   final Store store;
@@ -11,10 +12,12 @@ class QuickAddRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     if (items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Text('Add items from the Items tab to use quick add.'),
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(l.quickAddEmpty),
       );
     }
 

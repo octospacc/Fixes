@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../data/models.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../entries/entry_tile.dart';
 
 class HistoryView extends StatefulWidget {
@@ -18,6 +20,8 @@ class _HistoryViewState extends State<HistoryView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return ListenableBuilder(
       listenable: widget.store,
       builder: (context, _) {
@@ -42,17 +46,17 @@ class _HistoryViewState extends State<HistoryView> {
             Padding(
               padding: const EdgeInsets.all(12),
               child: TextField(
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search entries',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: l.historySearchHint,
+                  border: const OutlineInputBorder(),
                 ),
                 onChanged: (v) => setState(() => _query = v),
               ),
             ),
             Expanded(
               child: dates.isEmpty
-                  ? const Center(child: Text('No entries'))
+                  ? Center(child: Text(l.historyEmpty))
                   : ListView.builder(
                       itemCount: dates.length,
                       itemBuilder: (context, i) {
@@ -65,7 +69,7 @@ class _HistoryViewState extends State<HistoryView> {
                               padding:
                                   const EdgeInsets.fromLTRB(16, 12, 16, 4),
                               child: Text(
-                                _dateHeader(date),
+                                _dateHeader(date, context, l),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -87,12 +91,18 @@ class _HistoryViewState extends State<HistoryView> {
     );
   }
 
-  String _dateHeader(DateTime d) {
+  String _dateHeader(
+    DateTime d,
+    BuildContext context,
+    AppLocalizations l,
+  ) {
     final today = widget.store.logicalDay(DateTime.now());
     final yesterday = today.subtract(const Duration(days: 1));
-    if (_sameDay(d, today)) return 'Today';
-    if (_sameDay(d, yesterday)) return 'Yesterday';
-    return '${d.day}/${d.month}/${d.year}';
+    if (_sameDay(d, today)) return l.historyToday;
+    if (_sameDay(d, yesterday)) return l.historyYesterday;
+    return DateFormat.yMd(
+      Localizations.localeOf(context).toString(),
+    ).format(d);
   }
 
   bool _sameDay(DateTime a, DateTime b) =>

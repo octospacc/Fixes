@@ -1,9 +1,13 @@
 import 'package:intl/intl.dart';
 
 class Money {
-  static String format(double value, {String currencyCode = 'EUR'}) {
+  static String format(
+    double value, {
+    String currencyCode = 'EUR',
+    String? locale,
+  }) {
     final format = NumberFormat.currency(
-      locale: 'en_US',
+      locale: locale ?? 'en_US',
       symbol: _symbol(currencyCode),
       decimalDigits: 2,
     );

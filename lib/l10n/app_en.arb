@@ -1,0 +1,143 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Fixes",
+
+  "tabToday": "Today",
+  "tabHistory": "History",
+  "tabStatistics": "Statistics",
+  "tabItems": "Items",
+  "tabSettings": "Settings",
+
+  "todayEntries": "Entries",
+  "todaySpent": "Spent",
+  "todayEmpty": "No entries yet today",
+  "quickAddEmpty": "Add items from the Items tab to use quick add.",
+
+  "historySearchHint": "Search entries",
+  "historyEmpty": "No entries",
+  "historyToday": "Today",
+  "historyYesterday": "Yesterday",
+
+  "statsRange7": "7 days",
+  "statsRange30": "30 days",
+  "statsRange90": "90 days",
+  "statsTotalEntries": "Total entries",
+  "statsTotalSpent": "Total spent",
+  "statsDailyCount": "Daily count",
+  "statsTopItems": "Top items",
+  "statsEmpty": "No data yet",
+
+  "itemsEmpty": "No items yet",
+
+  "settingsCurrency": "Currency",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "System default",
+  "settingsDayBoundary": "Day boundary",
+  "settingsDayStartsAt": "Day starts at",
+  "settingsDayBoundaryHint": "Used for grouping in Today and History. Storage is unaffected.",
+  "settingsMidnight": "midnight",
+  "settingsData": "Data",
+  "settingsExportCsv": "Export CSV",
+  "settingsImportCsv": "Import CSV",
+  "settingsResetData": "Reset data",
+  "settingsResetDataSubtitle": "Delete all entries and items",
+  "settingsAppLabel": "App",
+  "settingsVersionLabel": "Version",
+  "settingsAppName": "Fixes",
+
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionDelete": "Delete",
+  "actionChange": "Change",
+
+  "resetTitle": "Reset data?",
+  "resetBody": "All entries and items will be permanently deleted. Settings (currency, day boundary) are kept. This cannot be undone.",
+  "resetConfirm": "Reset",
+
+  "entryNew": "New entry",
+  "entryEdit": "Edit entry",
+  "entryItemLabel": "Item",
+  "entryQuantity": "Quantity",
+  "entryDate": "Date",
+  "entryTime": "Time",
+  "entryIncludeTime": "Include time",
+  "entryPricePerUnit": "Price per unit",
+  "entryNote": "Note",
+
+  "itemNew": "New item",
+  "itemEdit": "Edit item",
+  "itemName": "Name",
+  "itemCategory": "Category",
+  "itemDefaultPrice": "Default price",
+  "itemSuggestions": "Suggestions",
+
+  "tileUnknownItem": "Unknown",
+  "tileAllDay": "All day",
+  "tileMore": "More",
+  "tileUndo": "Undo",
+  "tileDeleted": "Deleted \"{name}\"",
+  "@tileDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fabAddEntry": "Add entry",
+  "fabAddItem": "Add item",
+
+  "itemDeleteTitle": "Delete \"{name}\"?",
+  "@itemDeleteTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "itemDeleteBodyEmpty": "This item will be permanently removed.",
+  "itemDeleteBodyWithEntries": "This item and its {count, plural, =1{1 entry} other{{count} entries}} will be permanently removed.",
+  "@itemDeleteBodyWithEntries": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "itemDeleted": "Deleted \"{name}\"",
+  "@itemDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "csvImportCancelled": "Import cancelled",
+  "csvImportReadFailed": "Could not read the file contents. Try picking the file again.",
+  "csvImportEmptyFile": "CSV file is empty",
+  "csvImportNoRows": "CSV has no rows",
+  "csvImportMissingEntryId": "Missing \"entry_id\" column. Header was: {header}",
+  "@csvImportMissingEntryId": {
+    "placeholders": { "header": { "type": "String" } }
+  },
+  "csvImportMissingItemId": "Missing \"item_id\" column.",
+  "csvImportMissingDate": "Missing \"date\" column.",
+  "csvImportNothingImported": "Nothing imported. All entries may already be present.",
+  "csvImportFailed": "Import failed: {error}",
+  "@csvImportFailed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "csvImportedEntries": "{count, plural, =1{Imported 1 entry} other{Imported {count} entries}}",
+  "@csvImportedEntries": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvImportedNewItems": "{count, plural, =1{1 new item} other{{count} new items}}",
+  "@csvImportedNewItems": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvSkippedRows": "{count, plural, =1{1 skipped} other{{count} skipped}}",
+  "@csvSkippedRows": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "presetCoffeeName": "Coffee",
+  "presetCoffeeCategory": "Drink",
+  "presetCigaretteName": "Cigarette",
+  "presetCigaretteCategory": "Smoke",
+  "presetTeaName": "Tea",
+  "presetTeaCategory": "Drink",
+  "presetChipsName": "Chips",
+  "presetChipsCategory": "Snack",
+  "presetScratchName": "Scratch card",
+  "presetScratchCategory": "Gambling",
+  "presetLunchName": "Lunch out",
+  "presetLunchCategory": "Food",
+  "presetGamingName": "Gaming session",
+  "presetGamingCategory": "Leisure"
+}

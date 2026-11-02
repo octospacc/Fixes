@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class Item {
   final String id;
@@ -69,13 +70,13 @@ class Entry {
 }
 
 class StarterPresets {
-  static const List<Map<String, String>> suggestions = [
-    {'name': 'Coffee', 'category': 'Drink'},
-    {'name': 'Cigarette', 'category': 'Smoke'},
-    {'name': 'Tea', 'category': 'Drink'},
-    {'name': 'Chips', 'category': 'Snack'},
-    {'name': 'Scratch card', 'category': 'Gambling'},
-    {'name': 'Lunch out', 'category': 'Food'},
-    {'name': 'Gaming session', 'category': 'Leisure'},
-  ];
+  static List<Map<String, String>> forLocale(AppLocalizations l) => [
+        {'name': l.presetCoffeeName, 'category': l.presetCoffeeCategory},
+        {'name': l.presetCigaretteName, 'category': l.presetCigaretteCategory},
+        {'name': l.presetTeaName, 'category': l.presetTeaCategory},
+        {'name': l.presetChipsName, 'category': l.presetChipsCategory},
+        {'name': l.presetScratchName, 'category': l.presetScratchCategory},
+        {'name': l.presetLunchName, 'category': l.presetLunchCategory},
+        {'name': l.presetGamingName, 'category': l.presetGamingCategory},
+      ];
 }

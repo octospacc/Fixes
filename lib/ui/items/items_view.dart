@@ -3,6 +3,7 @@ import '../../data/category_icons.dart';
 import '../../data/models.dart';
 import '../../data/money.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'item_form.dart';
 
 class ItemsView extends StatelessWidget {
@@ -12,14 +13,17 @@ class ItemsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return ListenableBuilder(
       listenable: store,
       builder: (context, _) {
         final items = store.items;
-
         if (items.isEmpty) {
-          return const Center(child: Text('No items yet'));
+          return Center(child: Text(l.itemsEmpty));
         }
+        final locale = Localizations.localeOf(context).toString();
+        final error = Theme.of(context).colorScheme.error;
 
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 88),
@@ -32,6 +36,7 @@ class ItemsView extends StatelessWidget {
                 ? Money.format(
                     item.defaultPrice!,
                     currencyCode: store.currencyCode,
+                    locale: locale,
                   )
                 : null;
 
@@ -46,24 +51,23 @@ class ItemsView extends StatelessWidget {
                   if (priceText != null) Text(priceText),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_horiz, size: 20),
-                    tooltip: 'More',
+                    tooltip: l.tileMore,
                     onSelected: (v) async {
                       if (v == 'delete') {
-                        await _confirmAndDelete(
-                          context,
-                          item,
-                          entryCount,
-                        );
+                        await _confirmAndDelete(context, item, entryCount);
                       }
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (_) => [
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete_outline),
-                            SizedBox(width: 12),
-                            Text('Delete'),
+                            Icon(Icons.delete_outline, color: error),
+                            const SizedBox(width: 12),
+                            Text(
+                              l.actionDelete,
+                              style: TextStyle(color: error),
+                            ),
                           ],
                         ),
                       ),
@@ -88,25 +92,30 @@ class ItemsView extends StatelessWidget {
     Item item,
     int entryCount,
   ) async {
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Delete "${item.name}"?'),
+        title: Text(l.itemDeleteTitle(item.name)),
         content: Text(
           entryCount == 0
-              ? 'This item will be permanently removed.'
-              : 'This item and its $entryCount '
-                  '${entryCount == 1 ? "entry" : "entries"} '
-                  'will be permanently removed.',
+              ? l.itemDeleteBodyEmpty
+              : l.itemDeleteBodyWithEntries(entryCount),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l.actionCancel),
           ),
-          FilledButton.tonal(
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: scheme.error,
+              foregroundColor: scheme.onError,
+            ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l.actionDelete),
           ),
         ],
       ),
@@ -117,7 +126,7 @@ class ItemsView extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     store.deleteItem(item.id);
     messenger.showSnackBar(
-      SnackBar(content: Text('Deleted "${item.name}"')),
+      SnackBar(content: Text(l.itemDeleted(item.name))),
     );
   }
 }

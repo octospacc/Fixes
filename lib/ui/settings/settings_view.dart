@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/csv_manager.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class SettingsView extends StatelessWidget {
   final Store store;
@@ -9,13 +10,15 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return ListenableBuilder(
       listenable: store,
       builder: (context, _) {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const _SectionHeader('Currency'),
+            _sectionHeader(l.settingsCurrency),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: store.currencyCode,
@@ -25,51 +28,79 @@ class SettingsView extends StatelessWidget {
               onChanged: (v) {
                 if (v != null) store.setCurrencyCode(v);
               },
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 24),
-            const _SectionHeader('Day boundary'),
+            _sectionHeader(l.settingsLanguage),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: store.languageCode,
+              items: [
+                DropdownMenuItem(
+                  value: '',
+                  child: Text(l.settingsLanguageSystem),
+                ),
+                const DropdownMenuItem(
+                  value: 'en',
+                  child: Text('English'),
+                ),
+                const DropdownMenuItem(
+                  value: 'it',
+                  child: Text('Italiano'),
+                ),
+              ],
+              onChanged: (v) {
+                if (v != null) store.setLanguageCode(v);
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            _sectionHeader(l.settingsDayBoundary),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               value: store.dayStartHour,
               items: List.generate(24, (h) {
                 return DropdownMenuItem(
                   value: h,
-                  child: Text(_formatHour(h)),
+                  child: Text(_formatHour(h, l)),
                 );
               }),
               onChanged: (v) {
                 if (v != null) store.setDayStartHour(v);
               },
-              decoration: const InputDecoration(
-                labelText: 'Day starts at',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l.settingsDayStartsAt,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Used for grouping in Today and History. Storage is unaffected.',
+              l.settingsDayBoundaryHint,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 24),
-            const _SectionHeader('Data'),
+            _sectionHeader(l.settingsData),
             const SizedBox(height: 8),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.upload),
-              title: const Text('Export CSV'),
+              title: Text(l.settingsExportCsv),
               onTap: () => CsvManager.export(store),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.download),
-              title: const Text('Import CSV'),
+              title: Text(l.settingsImportCsv),
               onTap: () async {
                 final messenger = ScaffoldMessenger.of(context);
-                final result = await CsvManager.import(store);
+                final result = await CsvManager.import(store, l);
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text(result.message),
@@ -78,52 +109,53 @@ class SettingsView extends StatelessWidget {
                 );
               },
             ),
-        // ... after the Import CSV ListTile, before const Divider()
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            Icons.delete_forever,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          title: Text(
-            'Reset data',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-          subtitle: const Text('Delete all entries and items'),
-          onTap: () async {
-            final ok = await showDialog<bool>(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('Reset data?'),
-                content: const Text(
-                  'All entries and items will be permanently deleted. '
-                  'Settings (currency, day boundary) are kept. '
-                  'This cannot be undone.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
-                  ),
-                  FilledButton.tonal(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Reset'),
-                  ),
-                ],
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.delete_forever,
+                color: Theme.of(context).colorScheme.error,
               ),
-            );
-            if (ok == true) await store.reset();
-          },
-        ),
+              title: Text(
+                l.settingsResetData,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              subtitle: Text(l.settingsResetDataSubtitle),
+              onTap: () async {
+                final scheme = Theme.of(context).colorScheme;
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text(l.resetTitle),
+                    content: Text(l.resetBody),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(l.actionCancel),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: scheme.error,
+                          foregroundColor: scheme.onError,
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(l.resetConfirm),
+                      ),
+                    ],
+                  ),
+                );
+                if (ok == true) await store.reset();
+              },
+            ),
             const Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('App'),
-              trailing: const Text('Fixes'),
+              title: Text(l.settingsAppLabel),
+              trailing: Text(l.settingsAppName),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Version'),
+              title: Text(l.settingsVersionLabel),
               trailing: const Text('1.2.0 (1)'),
             ),
           ],
@@ -132,19 +164,15 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  String _formatHour(int h) =>
-      h == 0 ? '00:00 (midnight)' : '${h.toString().padLeft(2, '0')}:00';
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String text;
-  const _SectionHeader(this.text);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _sectionHeader(String text) {
     return Text(
       text,
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
     );
   }
+
+  String _formatHour(int h, AppLocalizations l) =>
+      h == 0
+          ? '00:00 (${l.settingsMidnight})'
+          : '${h.toString().padLeft(2, '0')}:00';
 }

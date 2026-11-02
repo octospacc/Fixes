@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Canonical category → icon. Keys are lowercase.
 const _iconMap = <String, IconData>{
   'coffee': Icons.coffee,
   'tea': Icons.emoji_food_beverage,
@@ -54,7 +53,6 @@ const _iconMap = <String, IconData>{
   'other': Icons.category,
 };
 
-/// Alias (lowercase) → canonical key in [_iconMap].
 const _aliases = <String, String>{
   // coffee
   'espresso': 'coffee', 'latte': 'coffee', 'cappuccino': 'coffee',
@@ -198,28 +196,64 @@ const _aliases = <String, String>{
   // other
   'misc': 'other', 'miscellaneous': 'other', 'unknown': 'other',
   'general': 'other', 'uncategorized': 'other', 'none': 'other',
+  // Italian
+  'caffè': 'coffee', 'caffe': 'coffee',
+  'bevande': 'drink', 'bevanda': 'drink', 'bibite': 'drink', 'bibita': 'drink',
+  'fumo': 'smoke', 'sigaretta': 'smoke', 'sigarette': 'smoke',
+  'sigaro': 'smoke', 'tabacco': 'smoke', 'svapo': 'smoke',
+  'cibo': 'food', 'pranzo': 'food', 'cena': 'food', 'colazione': 'food',
+  'ristorante': 'food', 'mangiare': 'food', 'cena fuori': 'food',
+  'pranzo fuori': 'food',
+  'patatine': 'snack', 'snack': 'snack', 'merenda': 'snack',
+  'dolci': 'dessert', 'dolce': 'dessert', 'torta': 'dessert',
+  'pasticceria': 'dessert',
+  'gioco d\'azzardo': 'gambling', 'scommesse': 'gambling',
+  'gratta e vinci': 'gambling', 'casinò': 'gambling', 'lotteria': 'gambling',
+  'videogiochi': 'gaming', 'videogioco': 'gaming', 'gioco': 'gaming',
+  'sessione di gioco': 'gaming',
+  'tempo libero': 'leisure', 'svago': 'leisure',
+  'sport': 'sport', 'palestra': 'gym', 'allenamento': 'gym',
+  'corsa': 'running', 'camminata': 'walking', 'passeggiata': 'walking',
+  'bicicletta': 'cycling', 'nuoto': 'swimming', 'yoga': 'yoga',
+  'salute': 'health', 'medicina': 'health', 'farmacia': 'health',
+  'medico': 'health', 'spa': 'spa', 'massaggio': 'spa',
+  'sonno': 'sleep', 'riposo': 'sleep',
+  'bellezza': 'beauty', 'trucco': 'beauty',
+  'parrucchiere': 'haircut', 'capelli': 'haircut',
+  'vestiti': 'clothing', 'abbigliamento': 'clothing', 'scarpe': 'clothing',
+  'viaggio': 'travel', 'vacanza': 'travel', 'volo': 'travel',
+  'trasporti': 'transport', 'autobus': 'transport', 'treno': 'transport',
+  'auto': 'car', 'macchina': 'car',
+  'carburante': 'fuel', 'benzina': 'fuel',
+  'lavoro': 'work', 'ufficio': 'work', 'riunione': 'work',
+  'studio': 'study', 'scuola': 'study', 'università': 'study',
+  'casa': 'home', 'affitto': 'home', 'mutuo': 'home',
+  'bollette': 'utility', 'bolletta': 'utility', 'luce': 'utility',
+  'telefono': 'phone',
+  'abbonamento': 'subscription', 'abbonamenti': 'subscription',
+  'lavanderia': 'laundry', 'bucato': 'laundry',
+  'pulizia': 'cleaning', 'pulizie': 'cleaning',
+  'regalo': 'gift', 'regali': 'gift', 'donazione': 'gift',
+  'animali': 'pets', 'animale': 'pets', 'cane': 'pets', 'gatto': 'pets',
+  'bambini': 'kids', 'bambino': 'kids', 'bambina': 'kids', 'giocattoli': 'kids',
+  'risparmi': 'savings', 'risparmio': 'savings',
+  'stipendio': 'income', 'entrate': 'income', 'guadagno': 'income',
+  'spese': 'expense', 'spesa': 'expense',
+  'acquisti': 'shopping', 'acquisto': 'shopping', 'negozio': 'shopping',
+  'varie': 'other', 'altro': 'other', 'misto': 'other',
 };
 
 String _normalize(String s) => s.trim().toLowerCase();
 
-/// Canonical key for a free-form category string (empty if blank).
 String canonicalCategory(String category) {
   final key = _normalize(category);
   if (key.isEmpty) return '';
   return _aliases[key] ?? key;
 }
 
-/// Icon for a free-form category string. Falls back to a tag icon.
 IconData iconForCategory(String category) {
   final key = _normalize(category);
   if (key.isEmpty) return Icons.label_outline;
   final canonical = _aliases[key] ?? key;
   return _iconMap[canonical] ?? Icons.label_outline;
 }
-
-/// Canonical suggestions shown in the item editor. Aliases are not listed.
-List<String> get suggestedCategories => const [
-      'Coffee', 'Tea', 'Drink', 'Food', 'Snack', 'Dessert',
-      'Smoke', 'Gambling', 'Gaming', 'Leisure', 'Shopping',
-      'Gym', 'Health', 'Work', 'Study', 'Travel', 'Home',
-    ];

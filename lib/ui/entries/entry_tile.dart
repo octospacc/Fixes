@@ -3,6 +3,7 @@ import '../../data/category_icons.dart';
 import '../../data/models.dart';
 import '../../data/money.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'entry_form.dart';
 
 class EntryTile extends StatelessWidget {
@@ -13,15 +14,18 @@ class EntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final item = store.itemById(entry.itemId);
-    final name = item?.name ?? 'Unknown';
+    final name = item?.name ?? l.tileUnknownItem;
     final priceText = entry.pricePerUnit != null
         ? Money.format(
             entry.pricePerUnit! * entry.quantity,
             currencyCode: store.currencyCode,
+            locale: Localizations.localeOf(context).toString(),
           )
         : null;
     final hasNote = entry.note.isNotEmpty;
+    final error = Theme.of(context).colorScheme.error;
 
     return ListTile(
       leading: Icon(iconForCategory(item?.category ?? '')),
@@ -30,7 +34,7 @@ class EntryTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_metaLine(entry)),
+          Text(_metaLine(entry, l)),
           if (hasNote)
             Text(
               entry.note,
@@ -47,18 +51,21 @@ class EntryTile extends StatelessWidget {
           if (priceText != null) Text(priceText),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_horiz, size: 20),
-            tooltip: 'More',
+            tooltip: l.tileMore,
             onSelected: (v) {
-              if (v == 'delete') _delete(context, name);
+              if (v == 'delete') _delete(context, name, l);
             },
-            itemBuilder: (_) => const [
+            itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline),
-                    SizedBox(width: 12),
-                    Text('Delete'),
+                    Icon(Icons.delete_outline, color: error),
+                    const SizedBox(width: 12),
+                    Text(
+                      l.actionDelete,
+                      style: TextStyle(color: error),
+                    ),
                   ],
                 ),
               ),
@@ -74,22 +81,26 @@ class EntryTile extends StatelessWidget {
     );
   }
 
-  void _delete(BuildContext context, String name) {
+  void _delete(
+    BuildContext context,
+    String name,
+    AppLocalizations l,
+  ) {
     final messenger = ScaffoldMessenger.of(context);
     final deleted = entry;
     store.deleteEntry(entry.id);
     messenger.showSnackBar(
       SnackBar(
-        content: Text('Deleted "$name"'),
+        content: Text(l.tileDeleted(name)),
         action: SnackBarAction(
-          label: 'Undo',
+          label: l.tileUndo,
           onPressed: () => store.saveEntry(deleted),
         ),
       ),
     );
   }
 
-  String _metaLine(Entry e) {
+  String _metaLine(Entry e, AppLocalizations l) {
     final parts = <String>[];
     if (e.quantity > 1) {
       parts.add(
@@ -100,8 +111,9 @@ class EntryTile extends StatelessWidget {
     }
     parts.add(
       e.hasTime
-          ? '${e.date.hour.toString().padLeft(2, '0')}:${e.date.minute.toString().padLeft(2, '0')}'
-          : 'All day',
+          ? '${e.date.hour.toString().padLeft(2, '0')}:'
+              '${e.date.minute.toString().padLeft(2, '0')}'
+          : l.tileAllDay,
     );
     return parts.join(' · ');
   }

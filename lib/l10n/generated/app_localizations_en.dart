@@ -1,0 +1,347 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Fixes';
+
+  @override
+  String get tabToday => 'Today';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get tabStatistics => 'Statistics';
+
+  @override
+  String get tabItems => 'Items';
+
+  @override
+  String get tabSettings => 'Settings';
+
+  @override
+  String get todayEntries => 'Entries';
+
+  @override
+  String get todaySpent => 'Spent';
+
+  @override
+  String get todayEmpty => 'No entries yet today';
+
+  @override
+  String get quickAddEmpty => 'Add items from the Items tab to use quick add.';
+
+  @override
+  String get historySearchHint => 'Search entries';
+
+  @override
+  String get historyEmpty => 'No entries';
+
+  @override
+  String get historyToday => 'Today';
+
+  @override
+  String get historyYesterday => 'Yesterday';
+
+  @override
+  String get statsRange7 => '7 days';
+
+  @override
+  String get statsRange30 => '30 days';
+
+  @override
+  String get statsRange90 => '90 days';
+
+  @override
+  String get statsTotalEntries => 'Total entries';
+
+  @override
+  String get statsTotalSpent => 'Total spent';
+
+  @override
+  String get statsDailyCount => 'Daily count';
+
+  @override
+  String get statsTopItems => 'Top items';
+
+  @override
+  String get statsEmpty => 'No data yet';
+
+  @override
+  String get itemsEmpty => 'No items yet';
+
+  @override
+  String get settingsCurrency => 'Currency';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageSystem => 'System default';
+
+  @override
+  String get settingsDayBoundary => 'Day boundary';
+
+  @override
+  String get settingsDayStartsAt => 'Day starts at';
+
+  @override
+  String get settingsDayBoundaryHint =>
+      'Used for grouping in Today and History. Storage is unaffected.';
+
+  @override
+  String get settingsMidnight => 'midnight';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportCsv => 'Export CSV';
+
+  @override
+  String get settingsImportCsv => 'Import CSV';
+
+  @override
+  String get settingsResetData => 'Reset data';
+
+  @override
+  String get settingsResetDataSubtitle => 'Delete all entries and items';
+
+  @override
+  String get settingsAppLabel => 'App';
+
+  @override
+  String get settingsVersionLabel => 'Version';
+
+  @override
+  String get settingsAppName => 'Fixes';
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String get actionCancel => 'Cancel';
+
+  @override
+  String get actionDelete => 'Delete';
+
+  @override
+  String get actionChange => 'Change';
+
+  @override
+  String get resetTitle => 'Reset data?';
+
+  @override
+  String get resetBody =>
+      'All entries and items will be permanently deleted. Settings (currency, day boundary) are kept. This cannot be undone.';
+
+  @override
+  String get resetConfirm => 'Reset';
+
+  @override
+  String get entryNew => 'New entry';
+
+  @override
+  String get entryEdit => 'Edit entry';
+
+  @override
+  String get entryItemLabel => 'Item';
+
+  @override
+  String get entryQuantity => 'Quantity';
+
+  @override
+  String get entryDate => 'Date';
+
+  @override
+  String get entryTime => 'Time';
+
+  @override
+  String get entryIncludeTime => 'Include time';
+
+  @override
+  String get entryPricePerUnit => 'Price per unit';
+
+  @override
+  String get entryNote => 'Note';
+
+  @override
+  String get itemNew => 'New item';
+
+  @override
+  String get itemEdit => 'Edit item';
+
+  @override
+  String get itemName => 'Name';
+
+  @override
+  String get itemCategory => 'Category';
+
+  @override
+  String get itemDefaultPrice => 'Default price';
+
+  @override
+  String get itemSuggestions => 'Suggestions';
+
+  @override
+  String get tileUnknownItem => 'Unknown';
+
+  @override
+  String get tileAllDay => 'All day';
+
+  @override
+  String get tileMore => 'More';
+
+  @override
+  String get tileUndo => 'Undo';
+
+  @override
+  String tileDeleted(String name) {
+    return 'Deleted \"$name\"';
+  }
+
+  @override
+  String get fabAddEntry => 'Add entry';
+
+  @override
+  String get fabAddItem => 'Add item';
+
+  @override
+  String itemDeleteTitle(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String get itemDeleteBodyEmpty => 'This item will be permanently removed.';
+
+  @override
+  String itemDeleteBodyWithEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '1 entry',
+    );
+    return 'This item and its $_temp0 will be permanently removed.';
+  }
+
+  @override
+  String itemDeleted(String name) {
+    return 'Deleted \"$name\"';
+  }
+
+  @override
+  String get csvImportCancelled => 'Import cancelled';
+
+  @override
+  String get csvImportReadFailed =>
+      'Could not read the file contents. Try picking the file again.';
+
+  @override
+  String get csvImportEmptyFile => 'CSV file is empty';
+
+  @override
+  String get csvImportNoRows => 'CSV has no rows';
+
+  @override
+  String csvImportMissingEntryId(String header) {
+    return 'Missing \"entry_id\" column. Header was: $header';
+  }
+
+  @override
+  String get csvImportMissingItemId => 'Missing \"item_id\" column.';
+
+  @override
+  String get csvImportMissingDate => 'Missing \"date\" column.';
+
+  @override
+  String get csvImportNothingImported =>
+      'Nothing imported. All entries may already be present.';
+
+  @override
+  String csvImportFailed(String error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String csvImportedEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imported $count entries',
+      one: 'Imported 1 entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String csvImportedNewItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new items',
+      one: '1 new item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String csvSkippedRows(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count skipped',
+      one: '1 skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get presetCoffeeName => 'Coffee';
+
+  @override
+  String get presetCoffeeCategory => 'Drink';
+
+  @override
+  String get presetCigaretteName => 'Cigarette';
+
+  @override
+  String get presetCigaretteCategory => 'Smoke';
+
+  @override
+  String get presetTeaName => 'Tea';
+
+  @override
+  String get presetTeaCategory => 'Drink';
+
+  @override
+  String get presetChipsName => 'Chips';
+
+  @override
+  String get presetChipsCategory => 'Snack';
+
+  @override
+  String get presetScratchName => 'Scratch card';
+
+  @override
+  String get presetScratchCategory => 'Gambling';
+
+  @override
+  String get presetLunchName => 'Lunch out';
+
+  @override
+  String get presetLunchCategory => 'Food';
+
+  @override
+  String get presetGamingName => 'Gaming session';
+
+  @override
+  String get presetGamingCategory => 'Leisure';
+}

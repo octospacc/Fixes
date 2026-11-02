@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/money.dart';
 import '../../data/stats_engine.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class StatsView extends StatefulWidget {
   final Store store;
@@ -18,6 +19,8 @@ class _StatsViewState extends State<StatsView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return ListenableBuilder(
       listenable: widget.store,
       builder: (context, _) {
@@ -32,16 +35,17 @@ class _StatsViewState extends State<StatsView> {
             .map((d) => d.count)
             .fold<int>(0, (a, b) => a > b ? a : b);
         final chartMax = (maxCount < 4 ? 4 : maxCount + 1).toDouble();
+        final locale = Localizations.localeOf(context).toString();
         final code = widget.store.currencyCode;
 
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
             SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 7, label: Text('7 days')),
-                ButtonSegment(value: 30, label: Text('30 days')),
-                ButtonSegment(value: 90, label: Text('90 days')),
+              segments: [
+                ButtonSegment(value: 7, label: Text(l.statsRange7)),
+                ButtonSegment(value: 30, label: Text(l.statsRange30)),
+                ButtonSegment(value: 90, label: Text(l.statsRange90)),
               ],
               selected: {_days},
               onSelectionChanged: (s) => setState(() => _days = s.first),
@@ -50,18 +54,24 @@ class _StatsViewState extends State<StatsView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _Stat(label: 'Total entries', value: '${summary.totalCount}'),
                 _Stat(
-                  label: 'Total spent',
-                  value:
-                      Money.format(summary.totalSpending, currencyCode: code),
+                  label: l.statsTotalEntries,
+                  value: '${summary.totalCount}',
+                ),
+                _Stat(
+                  label: l.statsTotalSpent,
+                  value: Money.format(
+                    summary.totalSpending,
+                    currencyCode: code,
+                    locale: locale,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Daily count',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              l.statsDailyCount,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             SizedBox(
@@ -90,22 +100,22 @@ class _StatsViewState extends State<StatsView> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Top items',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              l.statsTopItems,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             if (summary.topItems.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: Text('No data yet')),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(child: Text(l.statsEmpty)),
               )
             else
               ...summary.topItems.map(
                 (t) => ListTile(
                   title: Text(t.name),
                   trailing: Text(
-                    '${t.count} · ${Money.format(t.spending, currencyCode: code)}',
+                    '${t.count} · ${Money.format(t.spending, currencyCode: code, locale: locale)}',
                   ),
                 ),
               ),

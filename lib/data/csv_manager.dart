@@ -4,6 +4,7 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'models.dart';
 import 'store.dart';
 
@@ -22,9 +23,9 @@ class ImportResult {
     this.skipped = 0,
   });
 
-  factory ImportResult.cancelled() => const ImportResult._(
+  factory ImportResult.cancelled(AppLocalizations l) => ImportResult._(
         success: false,
-        message: 'Import cancelled',
+        message: l.csvImportCancelled,
       );
 
   factory ImportResult.error(String msg) => ImportResult._(
@@ -36,18 +37,19 @@ class ImportResult {
     required int entries,
     required int items,
     required int skipped,
-  }) =>
-      ImportResult._(
-        success: true,
-        message: items > 0
-            ? 'Imported $entries entries, $items new items'
-                '${skipped > 0 ? ' ($skipped skipped)' : ''}'
-            : 'Imported $entries entries'
-                '${skipped > 0 ? ' ($skipped skipped)' : ''}',
-        entriesAdded: entries,
-        itemsAdded: items,
-        skipped: skipped,
-      );
+    required AppLocalizations l,
+  }) {
+    final parts = <String>[l.csvImportedEntries(entries)];
+    if (items > 0) parts.add(l.csvImportedNewItems(items));
+    if (skipped > 0) parts.add('(${l.csvSkippedRows(skipped)})');
+    return ImportResult._(
+      success: true,
+      message: parts.join(', '),
+      entriesAdded: entries,
+      itemsAdded: items,
+      skipped: skipped,
+    );
+  }
 }
 
 class CsvManager {
@@ -63,8 +65,6 @@ class CsvManager {
     'price_per_unit',
     'note',
   ];
-
-  // ---------- EXPORT ----------
 
   static Future<void> export(Store store) async {
     final rows = <List<dynamic>>[_headers];
@@ -94,9 +94,10 @@ class CsvManager {
     ]);
   }
 
-  // ---------- IMPORT ----------
-
-  static Future<ImportResult> import(Store store) async {
+  static Future<ImportResult> import(
+    Store store,
+    AppLocalizations l,
+  ) async {
     try {
       debugPrint('[csv.import] opening picker');
       final picked = await FilePicker.platform.pickFiles(
@@ -106,57 +107,36 @@ class CsvManager {
       );
 
       if (picked == null || picked.files.isEmpty) {
-        debugPrint('[csv.import] cancelled (no files)');
-        return ImportResult.cancelled();
+        return ImportResult.cancelled(l);
       }
 
       final file = picked.files.single;
-      debugPrint(
-        '[csv.import] picked "${file.name}" (${file.size}B, '
-        'bytes=${file.bytes?.length})',
-      );
-
       final rawBytes = file.bytes;
       if (rawBytes == null) {
-        debugPrint('[csv.import] bytes are null — withData did not populate');
-        return ImportResult.error(
-          'Could not read the file contents. '
-          'Try picking the file again.',
-        );
+        return ImportResult.error(l.csvImportReadFailed);
       }
 
-      // Strip UTF-8 BOM if present (EF BB BF).
       var start = 0;
       if (rawBytes.length >= 3 &&
           rawBytes[0] == 0xEF &&
           rawBytes[1] == 0xBB &&
           rawBytes[2] == 0xBF) {
-        debugPrint('[csv.import] UTF-8 BOM detected, stripping');
         start = 3;
       }
       final content =
           utf8.decode(rawBytes.sublist(start), allowMalformed: true);
-      debugPrint('[csv.import] content length=${content.length}');
 
       if (content.trim().isEmpty) {
-        return ImportResult.error('CSV file is empty');
+        return ImportResult.error(l.csvImportEmptyFile);
       }
 
-      final delimiter = _detectDelimiter(content);
-      debugPrint('[csv.import] delimiter="$delimiter"');
-
-      final rows =
-          const CsvToListConverter(shouldParseNumbers: false)
-              .convert(content, eol: '\n');
-      debugPrint('[csv.import] parsed ${rows.length} rows');
-
+      final rows = const CsvToListConverter(shouldParseNumbers: false)
+          .convert(content, eol: '\n');
       if (rows.isEmpty) {
-        return ImportResult.error('CSV has no rows');
+        return ImportResult.error(l.csvImportNoRows);
       }
 
       final header = rows.first.map((e) => e.toString().trim()).toList();
-      debugPrint('[csv.import] header=$header');
-
       int idx(String name) =>
           header.indexWhere((h) => h.toLowerCase() == name.toLowerCase());
 
@@ -173,15 +153,14 @@ class CsvManager {
 
       if (idIndex < 0) {
         return ImportResult.error(
-          'Missing "entry_id" column. '
-          'Header was: ${header.join(", ")}',
+          l.csvImportMissingEntryId(header.join(', ')),
         );
       }
       if (itemIdIndex < 0) {
-        return ImportResult.error('Missing "item_id" column.');
+        return ImportResult.error(l.csvImportMissingItemId);
       }
       if (dateIndex < 0) {
-        return ImportResult.error('Missing "date" column.');
+        return ImportResult.error(l.csvImportMissingDate);
       }
 
       final existingEntryIds = store.entries.map((e) => e.id).toSet();
@@ -195,11 +174,7 @@ class CsvManager {
         if (row.isEmpty) continue;
 
         final id = _cell(row, idIndex);
-        if (id.isEmpty) {
-          skipped++;
-          continue;
-        }
-        if (existingEntryIds.contains(id)) {
+        if (id.isEmpty || existingEntryIds.contains(id)) {
           skipped++;
           continue;
         }
@@ -212,7 +187,6 @@ class CsvManager {
 
         final date = _parseDate(_cell(row, dateIndex));
         if (date == null) {
-          debugPrint('[csv.import] bad date for entry $id');
           skipped++;
           continue;
         }
@@ -240,11 +214,9 @@ class CsvManager {
         final qty = qtyIndex >= 0
             ? (double.tryParse(_cell(row, qtyIndex)) ?? 1.0)
             : 1.0;
-
         final price = priceIndex >= 0
             ? double.tryParse(_cell(row, priceIndex))
             : null;
-
         final hasTime = timeIndex >= 0 &&
             _cell(row, timeIndex).toLowerCase() == 'true';
 
@@ -261,50 +233,26 @@ class CsvManager {
         entriesAdded++;
       }
 
-      debugPrint(
-        '[csv.import] done: entries=$entriesAdded, items=$itemsAdded, '
-        'skipped=$skipped',
-      );
-
       if (entriesAdded == 0 && itemsAdded == 0) {
-        return ImportResult.error(
-          'Nothing imported. '
-          '${skipped > 0 ? "$skipped rows were skipped " : ""}'
-          '(all entries already present, or file has no valid rows).',
-        );
+        return ImportResult.error(l.csvImportNothingImported);
       }
 
       return ImportResult.ok(
         entries: entriesAdded,
         items: itemsAdded,
         skipped: skipped,
+        l: l,
       );
     } catch (e, st) {
       debugPrint('[csv.import] error: $e\n$st');
-      return ImportResult.error('Import failed: $e');
+      return ImportResult.error(l.csvImportFailed(e.toString()));
     }
-  }
-
-  // ---------- helpers ----------
-
-  static String _detectDelimiter(String content) {
-    final firstLine =
-        content.split(RegExp(r'[\r\n]')).firstWhere((l) => l.isNotEmpty,
-            orElse: () => '');
-    if (firstLine.isEmpty) return ',';
-    final commas = ','.allMatches(firstLine).length;
-    final semis = ';'.allMatches(firstLine).length;
-    final tabs = '\t'.allMatches(firstLine).length;
-    if (semis > commas && semis > tabs) return ';';
-    if (tabs > commas && tabs > semis) return '\t';
-    return ',';
   }
 
   static DateTime? _parseDate(String raw) {
     if (raw.isEmpty) return null;
     final iso = DateTime.tryParse(raw);
     if (iso != null) return iso;
-    // Try epoch seconds (e.g. 1793630400.000) for older exports.
     final asNum = double.tryParse(raw);
     if (asNum != null && asNum > 0) {
       return DateTime.fromMillisecondsSinceEpoch((asNum * 1000).round());

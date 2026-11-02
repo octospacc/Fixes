@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
 import '../../data/store.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class ItemForm extends StatefulWidget {
   final Store store;
@@ -62,11 +63,13 @@ class _ItemFormState extends State<ItemForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.item == null ? 'New item' : 'Edit item'),
+        title: Text(widget.item == null ? l.itemNew : l.itemEdit),
         actions: [
-          TextButton(onPressed: _save, child: const Text('Save')),
+          TextButton(onPressed: _save, child: Text(l.actionSave)),
         ],
       ),
       body: ListView(
@@ -74,9 +77,9 @@ class _ItemFormState extends State<ItemForm> {
         children: [
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Name',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l.itemName,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -84,7 +87,7 @@ class _ItemFormState extends State<ItemForm> {
             controller: _categoryCtrl,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-              labelText: 'Category',
+              labelText: l.itemCategory,
               prefixIcon: Icon(iconForCategory(_categoryCtrl.text)),
               border: const OutlineInputBorder(),
             ),
@@ -94,19 +97,22 @@ class _ItemFormState extends State<ItemForm> {
             controller: _priceCtrl,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Default price',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l.itemDefaultPrice,
+              border: const OutlineInputBorder(),
             ),
           ),
           if (widget.item == null) ...[
             const SizedBox(height: 24),
-            const Text(
-              'Suggestions',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              l.itemSuggestions,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 8),
-            ...StarterPresets.suggestions.map((s) {
+            ...StarterPresets.forLocale(l).map((s) {
               return ListTile(
                 leading: Icon(iconForCategory(s['category']!)),
                 title: Text(s['name']!),

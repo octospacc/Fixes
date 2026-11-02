@@ -8,6 +8,7 @@ class Store extends ChangeNotifier {
   static const _kEntries = 'entries';
   static const _kDayStartHour = 'dayStartHour';
   static const _kCurrency = 'currency';
+  static const _kLanguageCode = 'languageCode';
 
   static const _defaultCurrency = 'EUR';
 
@@ -16,6 +17,7 @@ class Store extends ChangeNotifier {
   List<Entry> _entries = [];
   int _dayStartHour = 0;
   String _currencyCode = _defaultCurrency;
+  String _languageCode = '';
 
   Store._(this._prefs) {
     _load();
@@ -30,6 +32,7 @@ class Store extends ChangeNotifier {
   List<Entry> get entries => _entries;
   int get dayStartHour => _dayStartHour;
   String get currencyCode => _currencyCode;
+  String get languageCode => _languageCode;
 
   Future<void> setDayStartHour(int hour) async {
     final clamped = hour.clamp(0, 23);
@@ -43,6 +46,17 @@ class Store extends ChangeNotifier {
     if (code == _currencyCode) return;
     _currencyCode = code;
     await _prefs.setString(_kCurrency, code);
+    notifyListeners();
+  }
+
+  Future<void> setLanguageCode(String code) async {
+    if (code == _languageCode) return;
+    _languageCode = code;
+    if (code.isEmpty) {
+      await _prefs.remove(_kLanguageCode);
+    } else {
+      await _prefs.setString(_kLanguageCode, code);
+    }
     notifyListeners();
   }
 
@@ -114,6 +128,14 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> reset() async {
+    _items = [];
+    _entries = [];
+    await _prefs.remove(_kItems);
+    await _prefs.remove(_kEntries);
+    notifyListeners();
+  }
+
   void _load() {
     try {
       final raw = _prefs.getString(_kItems);
@@ -139,6 +161,7 @@ class Store extends ChangeNotifier {
     }
     _dayStartHour = (_prefs.getInt(_kDayStartHour) ?? 0).clamp(0, 23);
     _currencyCode = _prefs.getString(_kCurrency) ?? _defaultCurrency;
+    _languageCode = _prefs.getString(_kLanguageCode) ?? '';
   }
 
   Future<void> _persist() async {
@@ -150,13 +173,5 @@ class Store extends ChangeNotifier {
       _kEntries,
       jsonEncode(_entries.map((e) => e.toJson()).toList()),
     );
-  }
-
-  Future<void> reset() async {
-    _items = [];
-    _entries = [];
-    await _prefs.remove(_kItems);
-    await _prefs.remove(_kEntries);
-    notifyListeners();
   }
 }
