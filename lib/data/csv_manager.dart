@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:csv/csv.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -99,21 +99,21 @@ class CsvManager {
     AppLocalizations l,
   ) async {
     try {
-      debugPrint('[csv.import] opening picker');
-      final picked = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
-        withData: true,
+      debugPrint('[csv.import] opening file selector');
+
+      final XFile? file = await openFile(
+        acceptedTypeGroups: const [
+          XTypeGroup(label: 'CSV', extensions: ['csv']),
+        ],
       );
 
-      if (picked == null || picked.files.isEmpty) {
+      if (file == null) {
         return ImportResult.cancelled(l);
       }
 
-      final file = picked.files.single;
-      final rawBytes = file.bytes;
-      if (rawBytes == null) {
-        return ImportResult.error(l.csvImportReadFailed);
+      final rawBytes = await file.readAsBytes();
+      if (rawBytes.isEmpty) {
+        return ImportResult.error(l.csvImportEmptyFile);
       }
 
       var start = 0;
