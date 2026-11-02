@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/csv_manager.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../data/app_info.dart';
 
 class SettingsView extends StatelessWidget {
   final Store store;
@@ -156,7 +157,7 @@ class SettingsView extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l.settingsVersionLabel),
-              trailing: const Text('1.2.0 (1)'),
+              trailing: Text(AppInfo.display),
             ),
           ],
         );
