@@ -198,5 +198,23 @@
   "historyFilterPriceNo": "No price",
   "historyFilterPriceRange": "Price range",
   "historyFilterPriceMin": "Min",
-  "historyFilterPriceMax": "Max"
+  "historyFilterPriceMax": "Max",
+
+  "statsTopCategories": "Top categories",
+  "statsCurrentStreak": "days in a row",
+  "statsBestStreak": "best: {count}",
+  "@statsBestStreak": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statsAveragePerDay": "avg / day",
+  "statsAverageSpendSubtitle": "{amount} / day",
+  "@statsAverageSpendSubtitle": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "statsLastSeenToday": "today",
+  "statsLastSeenYesterday": "yesterday",
+  "statsLastSeenDaysAgo": "{count}d ago",
+  "@statsLastSeenDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

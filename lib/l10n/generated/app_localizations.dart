@@ -943,6 +943,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Max'**
   String get historyFilterPriceMax;
+
+  /// No description provided for @statsTopCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Top categories'**
+  String get statsTopCategories;
+
+  /// No description provided for @statsCurrentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'days in a row'**
+  String get statsCurrentStreak;
+
+  /// No description provided for @statsBestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'best: {count}'**
+  String statsBestStreak(int count);
+
+  /// No description provided for @statsAveragePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'avg / day'**
+  String get statsAveragePerDay;
+
+  /// No description provided for @statsAverageSpendSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} / day'**
+  String statsAverageSpendSubtitle(String amount);
+
+  /// No description provided for @statsLastSeenToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get statsLastSeenToday;
+
+  /// No description provided for @statsLastSeenYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday'**
+  String get statsLastSeenYesterday;
+
+  /// No description provided for @statsLastSeenDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String statsLastSeenDaysAgo(int count);
 }
 
 class _AppLocalizationsDelegate

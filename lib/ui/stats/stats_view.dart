@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../../data/category_icons.dart';
 import '../../data/money.dart';
 import '../../data/stats_engine.dart';
 import '../../data/store.dart';
@@ -51,7 +52,9 @@ class _StatsViewState extends State<StatsView> {
               onSelectionChanged: (s) => setState(() => _days = s.first),
             ),
             const SizedBox(height: 24),
+
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _Stat(
@@ -69,6 +72,31 @@ class _StatsViewState extends State<StatsView> {
               ],
             ),
             const SizedBox(height: 24),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _Stat(
+                  label: l.statsCurrentStreak,
+                  value: '${summary.currentStreak}',
+                  subtitle: l.statsBestStreak(summary.bestStreak),
+                ),
+                _Stat(
+                  label: l.statsAveragePerDay,
+                  value: summary.averagePerDay.toStringAsFixed(1),
+                  subtitle: l.statsAverageSpendSubtitle(
+                    Money.format(
+                      summary.averageSpendPerDay,
+                      currencyCode: code,
+                      locale: locale,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
             Text(
               l.statsDailyCount,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -88,6 +116,7 @@ class _StatsViewState extends State<StatsView> {
                           toY: e.value.count.toDouble(),
                           width: 6,
                           borderRadius: BorderRadius.circular(2),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ],
                     );
@@ -100,6 +129,7 @@ class _StatsViewState extends State<StatsView> {
               ),
             ),
             const SizedBox(height: 24),
+
             Text(
               l.statsTopItems,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -113,9 +143,35 @@ class _StatsViewState extends State<StatsView> {
             else
               ...summary.topItems.map(
                 (t) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(iconForCategory(t.category)),
                   title: Text(t.name),
+                  subtitle: _lastSeenLabel(context, t.lastSeen, l),
                   trailing: Text(
                     '${t.count} · ${Money.format(t.spending, currencyCode: code, locale: locale)}',
+                  ),
+                ),
+              ),
+            const SizedBox(height: 24),
+
+            Text(
+              l.statsTopCategories,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            if (summary.topCategories.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(child: Text(l.statsEmpty)),
+              )
+            else
+              ...summary.topCategories.map(
+                (c) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(iconForCategory(c.category)),
+                  title: Text(c.category),
+                  trailing: Text(
+                    '${c.count} · ${Money.format(c.spending, currencyCode: code, locale: locale)}',
                   ),
                 ),
               ),
@@ -124,13 +180,39 @@ class _StatsViewState extends State<StatsView> {
       },
     );
   }
+
+  Widget? _lastSeenLabel(
+    BuildContext context,
+    DateTime? lastSeen,
+    AppLocalizations l,
+  ) {
+    if (lastSeen == null) return null;
+    final lastLogical = widget.store.logicalDay(lastSeen);
+    final todayLogical = widget.store.logicalDay(DateTime.now());
+    final days = todayLogical.difference(lastLogical).inDays;
+
+    final String text;
+    if (days <= 0) {
+      text = l.statsLastSeenToday;
+    } else if (days == 1) {
+      text = l.statsLastSeenYesterday;
+    } else {
+      text = l.statsLastSeenDaysAgo(days);
+    }
+    return Text(text);
+  }
 }
 
 class _Stat extends StatelessWidget {
   final String label;
   final String value;
+  final String? subtitle;
 
-  const _Stat({required this.label, required this.value});
+  const _Stat({
+    required this.label,
+    required this.value,
+    this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +224,16 @@ class _Stat extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(label),
+        if (subtitle != null) ...[
+          const SizedBox(height: 2),
+          Text(
+            subtitle!,
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ],
     );
   }

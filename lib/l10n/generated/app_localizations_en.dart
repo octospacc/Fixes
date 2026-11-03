@@ -487,4 +487,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyFilterPriceMax => 'Max';
+
+  @override
+  String get statsTopCategories => 'Top categories';
+
+  @override
+  String get statsCurrentStreak => 'days in a row';
+
+  @override
+  String statsBestStreak(int count) {
+    return 'best: $count';
+  }
+
+  @override
+  String get statsAveragePerDay => 'avg / day';
+
+  @override
+  String statsAverageSpendSubtitle(String amount) {
+    return '$amount / day';
+  }
+
+  @override
+  String get statsLastSeenToday => 'today';
+
+  @override
+  String get statsLastSeenYesterday => 'yesterday';
+
+  @override
+  String statsLastSeenDaysAgo(int count) {
+    return '${count}d ago';
+  }
 }
