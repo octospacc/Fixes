@@ -138,4 +138,4 @@ lib/
 
 ## Scope
 
-Fixes intentionally omits cloud sync, user accounts, custom category icons, per-item colors, multiple ledgers, widgets, and notifications. It is a focused personal ledger that works offline and stays out of the way.
+Fixes intentionally omits user accounts, custom category icons, per-item colors, multiple ledgers, widgets, and notifications. It is a focused personal ledger that works offline and stays out of the way.
