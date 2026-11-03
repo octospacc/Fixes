@@ -521,4 +521,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String statsLastSeenDaysAgo(int count) {
     return '${count}g fa';
   }
+
+  @override
+  String settingsRepoOpenFailed(String url) {
+    return 'Impossibile aprire $url';
+  }
 }

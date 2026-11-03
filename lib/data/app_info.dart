@@ -1,6 +1,9 @@
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AppInfo {
+  /// Repository URL opened from Settings → App.
+  static const repoUrl = 'https://gitlab.com/octospacc/Fixes';
+
   static PackageInfo? _info;
 
   static Future<void> load() async {

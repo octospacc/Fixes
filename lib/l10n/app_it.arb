@@ -216,5 +216,10 @@
   "statsLastSeenDaysAgo": "{count}g fa",
   "@statsLastSeenDaysAgo": {
     "placeholders": { "count": { "type": "int" } }
+  },
+
+  "settingsRepoOpenFailed": "Impossibile aprire {url}",
+  "@settingsRepoOpenFailed": {
+    "placeholders": { "url": { "type": "String" } }
   }
 }

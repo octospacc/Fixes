@@ -183,7 +183,19 @@ class _SettingsViewState extends State<SettingsView> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l.settingsAppLabel),
-              trailing: Text(l.settingsAppName),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l.settingsAppName),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.open_in_new,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+              onTap: _openRepo,
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -382,6 +394,17 @@ class _SettingsViewState extends State<SettingsView> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.dropboxDownloadError(e.toString()))),
+      );
+    }
+  }
+
+  Future<void> _openRepo() async {
+    final uri = Uri.parse(AppInfo.repoUrl);
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      final l = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.settingsRepoOpenFailed(AppInfo.repoUrl))),
       );
     }
   }

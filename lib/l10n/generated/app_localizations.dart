@@ -991,6 +991,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count}d ago'**
   String statsLastSeenDaysAgo(int count);
+
+  /// No description provided for @settingsRepoOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open {url}'**
+  String settingsRepoOpenFailed(String url);
 }
 
 class _AppLocalizationsDelegate
