@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/history_filter.dart';
+import '../../data/money.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -34,6 +35,9 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
   late bool _timeEnabled;
   late TimeOfDay _timeFrom;
   late TimeOfDay _timeTo;
+  late PriceFilterMode _priceMode;
+  late final TextEditingController _priceMinCtrl;
+  late final TextEditingController _priceMaxCtrl;
 
   @override
   void initState() {
@@ -47,12 +51,17 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
       _timeFrom = widget.initial.timeRange!.start;
       _timeTo = widget.initial.timeRange!.end;
     } else {
-      // Fall back to the last values the user picked, not hardcoded defaults.
       final from = widget.store.filterTimeFromMinutes;
       final to = widget.store.filterTimeToMinutes;
       _timeFrom = TimeOfDay(hour: from ~/ 60, minute: from % 60);
       _timeTo = TimeOfDay(hour: to ~/ 60, minute: to % 60);
     }
+
+    _priceMode = widget.initial.priceFilter.mode;
+    _priceMinCtrl =
+        TextEditingController(text: widget.store.filterPriceMin);
+    _priceMaxCtrl =
+        TextEditingController(text: widget.store.filterPriceMax);
 
     if (_dateMode == DateFilterMode.specificDay && _specificDay == null) {
       _specificDay = _today();
@@ -66,12 +75,50 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
     }
   }
 
+  @override
+  void dispose() {
+    _priceMinCtrl.dispose();
+    _priceMaxCtrl.dispose();
+    super.dispose();
+  }
+
   DateTime _today() {
     final now = DateTime.now();
     return DateTime(now.year, now.month, now.day);
   }
 
+  void _persistPriceRange() {
+    widget.store.setFilterPriceRange(
+      _priceMinCtrl.text,
+      _priceMaxCtrl.text,
+    );
+  }
+
   HistoryFilter _buildFilter() {
+    PriceFilter priceFilter;
+    if (_priceMode == PriceFilterMode.inRange) {
+      double? min = double.tryParse(_priceMinCtrl.text.trim());
+      double? max = double.tryParse(_priceMaxCtrl.text.trim());
+      if (min != null && max != null && min > max) {
+        final t = min;
+        min = max;
+        max = t;
+      }
+      if (min == null && max == null) {
+        // Range selected but no bounds typed — treat as "any" so the
+        // chip does not show an empty range.
+        priceFilter = const PriceFilter();
+      } else {
+        priceFilter = PriceFilter(
+          mode: PriceFilterMode.inRange,
+          min: min,
+          max: max,
+        );
+      }
+    } else {
+      priceFilter = PriceFilter(mode: _priceMode);
+    }
+
     return HistoryFilter(
       dateMode: _dateMode,
       specificDay:
@@ -80,6 +127,7 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
       timeRange: _timeEnabled
           ? TimeRange(start: _timeFrom, end: _timeTo)
           : null,
+      priceFilter: priceFilter,
     );
   }
 
@@ -141,6 +189,7 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
     final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final dateFormat = DateFormat.yMd(locale);
+    final symbol = Money.symbol(widget.store.currencyCode);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -269,6 +318,86 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
                           '${l.historyFilterTimeTo} '
                           '${_timeTo.format(context)}',
                         ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 8),
+            Text(
+              l.historyFilterPriceSection,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            RadioListTile<PriceFilterMode>(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.historyFilterPriceAny),
+              value: PriceFilterMode.any,
+              groupValue: _priceMode,
+              onChanged: (v) => setState(
+                () => _priceMode = v ?? PriceFilterMode.any,
+              ),
+            ),
+            RadioListTile<PriceFilterMode>(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.historyFilterPriceHas),
+              value: PriceFilterMode.hasPrice,
+              groupValue: _priceMode,
+              onChanged: (v) => setState(
+                () => _priceMode = v ?? _priceMode,
+              ),
+            ),
+            RadioListTile<PriceFilterMode>(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.historyFilterPriceNo),
+              value: PriceFilterMode.noPrice,
+              groupValue: _priceMode,
+              onChanged: (v) => setState(
+                () => _priceMode = v ?? _priceMode,
+              ),
+            ),
+            RadioListTile<PriceFilterMode>(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.historyFilterPriceRange),
+              value: PriceFilterMode.inRange,
+              groupValue: _priceMode,
+              onChanged: (v) => setState(
+                () => _priceMode = v ?? _priceMode,
+              ),
+            ),
+            if (_priceMode == PriceFilterMode.inRange)
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 8, bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _priceMinCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l.historyFilterPriceMin,
+                          prefixText: '$symbol ',
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        onChanged: (_) => _persistPriceRange(),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _priceMaxCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l.historyFilterPriceMax,
+                          prefixText: '$symbol ',
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        onChanged: (_) => _persistPriceRange(),
                       ),
                     ),
                   ],

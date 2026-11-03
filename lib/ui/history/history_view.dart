@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/history_filter.dart';
 import '../../data/models.dart';
+import '../../data/money.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../entries/entry_tile.dart';
@@ -47,6 +48,7 @@ class _HistoryViewState extends State<HistoryView> {
     if (_filter.timeRange != null && !_filter.timeRange!.matches(e.date)) {
       return false;
     }
+    if (!_filter.priceFilter.matches(e.pricePerUnit)) return false;
     return true;
   }
 
@@ -166,12 +168,16 @@ class _HistoryViewState extends State<HistoryView> {
 
     final chips = <Widget>[];
 
+    // Date chip
     if (_filter.dateMode == DateFilterMode.specificDay &&
         _filter.specificDay != null) {
       chips.add(InputChip(
         label: Text(_dayLabel(_filter.specificDay!, context, l)),
         onDeleted: () => setState(() {
-          _filter = HistoryFilter(timeRange: _filter.timeRange);
+          _filter = HistoryFilter(
+            timeRange: _filter.timeRange,
+            priceFilter: _filter.priceFilter,
+          );
         }),
         deleteIcon: const Icon(Icons.close, size: 16),
       ));
@@ -183,12 +189,16 @@ class _HistoryViewState extends State<HistoryView> {
           '${dateFormat.format(_filter.dateRange!.end)}',
         ),
         onDeleted: () => setState(() {
-          _filter = HistoryFilter(timeRange: _filter.timeRange);
+          _filter = HistoryFilter(
+            timeRange: _filter.timeRange,
+            priceFilter: _filter.priceFilter,
+          );
         }),
         deleteIcon: const Icon(Icons.close, size: 16),
       ));
     }
 
+    // Time chip
     if (_filter.timeRange != null) {
       chips.add(InputChip(
         label: Text(
@@ -200,6 +210,23 @@ class _HistoryViewState extends State<HistoryView> {
             dateMode: _filter.dateMode,
             specificDay: _filter.specificDay,
             dateRange: _filter.dateRange,
+            priceFilter: _filter.priceFilter,
+          );
+        }),
+        deleteIcon: const Icon(Icons.close, size: 16),
+      ));
+    }
+
+    // Price chip
+    if (_filter.priceFilter.isActive) {
+      chips.add(InputChip(
+        label: Text(_priceChipLabel(context, l)),
+        onDeleted: () => setState(() {
+          _filter = HistoryFilter(
+            dateMode: _filter.dateMode,
+            specificDay: _filter.specificDay,
+            dateRange: _filter.dateRange,
+            timeRange: _filter.timeRange,
           );
         }),
         deleteIcon: const Icon(Icons.close, size: 16),
@@ -223,6 +250,33 @@ class _HistoryViewState extends State<HistoryView> {
         ],
       ),
     );
+  }
+
+  String _priceChipLabel(BuildContext context, AppLocalizations l) {
+    final pf = _filter.priceFilter;
+    switch (pf.mode) {
+      case PriceFilterMode.hasPrice:
+        return l.historyFilterPriceHas;
+      case PriceFilterMode.noPrice:
+        return l.historyFilterPriceNo;
+      case PriceFilterMode.inRange:
+        final locale = Localizations.localeOf(context).toString();
+        String fmt(double v) => Money.format(
+              v,
+              currencyCode: widget.store.currencyCode,
+              locale: locale,
+            );
+        if (pf.min != null && pf.max != null) {
+          return '${fmt(pf.min!)} – ${fmt(pf.max!)}';
+        } else if (pf.min != null) {
+          return '≥ ${fmt(pf.min!)}';
+        } else if (pf.max != null) {
+          return '≤ ${fmt(pf.max!)}';
+        }
+        return l.historyFilterPriceAny;
+      case PriceFilterMode.any:
+        return l.historyFilterPriceAny;
+    }
   }
 
   String _dayLabel(DateTime day, BuildContext context, AppLocalizations l) {

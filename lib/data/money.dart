@@ -14,6 +14,10 @@ class Money {
     return format.format(value);
   }
 
+  /// Public accessor for the currency symbol, used by UI code that
+  /// wants to display the symbol without a formatted amount.
+  static String symbol(String currencyCode) => _symbol(currencyCode);
+
   static String _symbol(String code) {
     const symbols = {
       'USD': r'$',

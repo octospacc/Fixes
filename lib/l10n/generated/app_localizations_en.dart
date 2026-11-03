@@ -466,4 +466,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyFilterNoResults => 'No entries match the current filters';
+
+  @override
+  String get historyFilterPriceSection => 'Price per unit';
+
+  @override
+  String get historyFilterPriceAny => 'Any price';
+
+  @override
+  String get historyFilterPriceHas => 'Has a price';
+
+  @override
+  String get historyFilterPriceNo => 'No price';
+
+  @override
+  String get historyFilterPriceRange => 'Price range';
+
+  @override
+  String get historyFilterPriceMin => 'Min';
+
+  @override
+  String get historyFilterPriceMax => 'Max';
 }

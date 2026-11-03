@@ -470,4 +470,25 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get historyFilterNoResults =>
       'Nessuna voce corrisponde ai filtri attuali';
+
+  @override
+  String get historyFilterPriceSection => 'Prezzo unitario';
+
+  @override
+  String get historyFilterPriceAny => 'Qualsiasi prezzo';
+
+  @override
+  String get historyFilterPriceHas => 'Con prezzo';
+
+  @override
+  String get historyFilterPriceNo => 'Senza prezzo';
+
+  @override
+  String get historyFilterPriceRange => 'Intervallo di prezzo';
+
+  @override
+  String get historyFilterPriceMin => 'Min';
+
+  @override
+  String get historyFilterPriceMax => 'Max';
 }

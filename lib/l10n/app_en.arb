@@ -191,5 +191,12 @@
   "historyFilterChange": "Change",
   "historyFilterClearAll": "Clear all",
   "historyFilterApply": "Apply",
-  "historyFilterNoResults": "No entries match the current filters"
+  "historyFilterNoResults": "No entries match the current filters",
+  "historyFilterPriceSection": "Price per unit",
+  "historyFilterPriceAny": "Any price",
+  "historyFilterPriceHas": "Has a price",
+  "historyFilterPriceNo": "No price",
+  "historyFilterPriceRange": "Price range",
+  "historyFilterPriceMin": "Min",
+  "historyFilterPriceMax": "Max"
 }

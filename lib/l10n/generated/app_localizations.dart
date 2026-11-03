@@ -901,6 +901,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No entries match the current filters'**
   String get historyFilterNoResults;
+
+  /// No description provided for @historyFilterPriceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per unit'**
+  String get historyFilterPriceSection;
+
+  /// No description provided for @historyFilterPriceAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any price'**
+  String get historyFilterPriceAny;
+
+  /// No description provided for @historyFilterPriceHas.
+  ///
+  /// In en, this message translates to:
+  /// **'Has a price'**
+  String get historyFilterPriceHas;
+
+  /// No description provided for @historyFilterPriceNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No price'**
+  String get historyFilterPriceNo;
+
+  /// No description provided for @historyFilterPriceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Price range'**
+  String get historyFilterPriceRange;
+
+  /// No description provided for @historyFilterPriceMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get historyFilterPriceMin;
+
+  /// No description provided for @historyFilterPriceMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get historyFilterPriceMax;
 }
 
 class _AppLocalizationsDelegate

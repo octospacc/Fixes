@@ -191,5 +191,12 @@
   "historyFilterChange": "Cambia",
   "historyFilterClearAll": "Cancella tutto",
   "historyFilterApply": "Applica",
-  "historyFilterNoResults": "Nessuna voce corrisponde ai filtri attuali"
+  "historyFilterNoResults": "Nessuna voce corrisponde ai filtri attuali",
+  "historyFilterPriceSection": "Prezzo unitario",
+  "historyFilterPriceAny": "Qualsiasi prezzo",
+  "historyFilterPriceHas": "Con prezzo",
+  "historyFilterPriceNo": "Senza prezzo",
+  "historyFilterPriceRange": "Intervallo di prezzo",
+  "historyFilterPriceMin": "Min",
+  "historyFilterPriceMax": "Max"
 }

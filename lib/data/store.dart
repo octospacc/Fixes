@@ -13,6 +13,8 @@ class Store extends ChangeNotifier {
   static const _kLastSynced = 'lastSynced';
   static const _kFilterTimeFrom = 'filterTimeFrom';
   static const _kFilterTimeTo = 'filterTimeTo';
+  static const _kFilterPriceMin = 'filterPriceMin';
+  static const _kFilterPriceMax = 'filterPriceMax';
 
   static const _defaultCurrency = 'EUR';
   static const _syncSchemaVersion = 1;
@@ -30,6 +32,8 @@ class Store extends ChangeNotifier {
   DateTime? _lastSynced;
   int _filterTimeFrom = _defaultFilterFromMinutes;
   int _filterTimeTo = _defaultFilterToMinutes;
+  String _filterPriceMin = '';
+  String _filterPriceMax = '';
 
   Store._(this._prefs) {
     _load();
@@ -49,6 +53,8 @@ class Store extends ChangeNotifier {
   DateTime? get lastSynced => _lastSynced;
   int get filterTimeFromMinutes => _filterTimeFrom;
   int get filterTimeToMinutes => _filterTimeTo;
+  String get filterPriceMin => _filterPriceMin;
+  String get filterPriceMax => _filterPriceMax;
 
   bool get hasUnsyncedChanges {
     if (_lastSynced == null) {
@@ -98,6 +104,26 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Persisted text values for the price range filter fields.
+  /// Notified intentionally *not* fired — only the filter sheet reads
+  /// these, and it does so on open, so notifying would unnecessarily
+  /// rebuild the whole History list on every keystroke.
+  Future<void> setFilterPriceRange(String min, String max) async {
+    if (min == _filterPriceMin && max == _filterPriceMax) return;
+    _filterPriceMin = min;
+    _filterPriceMax = max;
+    if (min.isEmpty) {
+      await _prefs.remove(_kFilterPriceMin);
+    } else {
+      await _prefs.setString(_kFilterPriceMin, min);
+    }
+    if (max.isEmpty) {
+      await _prefs.remove(_kFilterPriceMax);
+    } else {
+      await _prefs.setString(_kFilterPriceMax, max);
+    }
+  }
+
   // ---------- Queries ----------
 
   Item? itemById(String id) {
@@ -107,14 +133,11 @@ class Store extends ChangeNotifier {
     return null;
   }
 
-  /// The logical day that a given timestamp belongs to.
   DateTime logicalDay(DateTime dt) {
     final adjusted = dt.subtract(Duration(hours: _dayStartHour));
     return DateTime(adjusted.year, adjusted.month, adjusted.day);
   }
 
-  /// The half-open interval of the logical day containing [anchor].
-  /// Used when you have a moment and want to know which day it falls in.
   (DateTime, DateTime) logicalDayRange(DateTime anchor) {
     final adjusted = anchor.subtract(Duration(hours: _dayStartHour));
     final start = DateTime(adjusted.year, adjusted.month, adjusted.day)
@@ -123,13 +146,6 @@ class Store extends ChangeNotifier {
     return (start, end);
   }
 
-  /// The half-open interval of the calendar date [date], adjusted by
-  /// [dayStartHour]. Used when the user has picked a date label (e.g.
-  /// "Nov 3" from a date picker) and you need the range that label
-  /// actually covers.
-  ///
-  /// With dayStartHour=0, "Nov 3" → [Nov 3 00:00, Nov 4 00:00).
-  /// With dayStartHour=4, "Nov 3" → [Nov 3 04:00, Nov 4 04:00).
   (DateTime, DateTime) calendarDayRange(DateTime date) {
     final start = DateTime(date.year, date.month, date.day)
         .add(Duration(hours: _dayStartHour));
@@ -303,6 +319,8 @@ class Store extends ChangeNotifier {
     _filterTimeTo = _prefs.getInt(_kFilterTimeTo)
             ?.clamp(0, 23 * 60 + 59) ??
         _defaultFilterToMinutes;
+    _filterPriceMin = _prefs.getString(_kFilterPriceMin) ?? '';
+    _filterPriceMax = _prefs.getString(_kFilterPriceMax) ?? '';
   }
 
   Future<void> _persist() async {
