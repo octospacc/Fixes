@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @historySearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search entries'**
+  /// **'Search entries, categories, notes'**
   String get historySearchHint;
 
   /// No description provided for @historyEmpty.
@@ -829,6 +829,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last synced {date}'**
   String dropboxLastSynced(String date);
+
+  /// No description provided for @historyFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get historyFilterTitle;
+
+  /// No description provided for @historyFilterDateSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get historyFilterDateSection;
+
+  /// No description provided for @historyFilterAnyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Any date'**
+  String get historyFilterAnyDate;
+
+  /// No description provided for @historyFilterSpecificDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Specific day'**
+  String get historyFilterSpecificDay;
+
+  /// No description provided for @historyFilterDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date range'**
+  String get historyFilterDateRange;
+
+  /// No description provided for @historyFilterTimeOfDaySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of day'**
+  String get historyFilterTimeOfDaySection;
+
+  /// No description provided for @historyFilterTimeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get historyFilterTimeFrom;
+
+  /// No description provided for @historyFilterTimeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get historyFilterTimeTo;
+
+  /// No description provided for @historyFilterChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get historyFilterChange;
+
+  /// No description provided for @historyFilterClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get historyFilterClearAll;
+
+  /// No description provided for @historyFilterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get historyFilterApply;
+
+  /// No description provided for @historyFilterNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries match the current filters'**
+  String get historyFilterNoResults;
 }
 
 class _AppLocalizationsDelegate

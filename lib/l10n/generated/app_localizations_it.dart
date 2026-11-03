@@ -40,7 +40,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Aggiungi articoli dalla scheda Articoli per usare l\'aggiunta rapida.';
 
   @override
-  String get historySearchHint => 'Cerca voci';
+  String get historySearchHint => 'Cerca voci, categorie, note';
 
   @override
   String get historyEmpty => 'Nessuna voce';
@@ -433,4 +433,41 @@ class AppLocalizationsIt extends AppLocalizations {
   String dropboxLastSynced(String date) {
     return 'Ultima sincronizzazione: $date';
   }
+
+  @override
+  String get historyFilterTitle => 'Filtri';
+
+  @override
+  String get historyFilterDateSection => 'Data';
+
+  @override
+  String get historyFilterAnyDate => 'Qualsiasi data';
+
+  @override
+  String get historyFilterSpecificDay => 'Giorno specifico';
+
+  @override
+  String get historyFilterDateRange => 'Intervallo di date';
+
+  @override
+  String get historyFilterTimeOfDaySection => 'Ora del giorno';
+
+  @override
+  String get historyFilterTimeFrom => 'Da';
+
+  @override
+  String get historyFilterTimeTo => 'A';
+
+  @override
+  String get historyFilterChange => 'Cambia';
+
+  @override
+  String get historyFilterClearAll => 'Cancella tutto';
+
+  @override
+  String get historyFilterApply => 'Applica';
+
+  @override
+  String get historyFilterNoResults =>
+      'Nessuna voce corrisponde ai filtri attuali';
 }

@@ -39,7 +39,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAddEmpty => 'Add items from the Items tab to use quick add.';
 
   @override
-  String get historySearchHint => 'Search entries';
+  String get historySearchHint => 'Search entries, categories, notes';
 
   @override
   String get historyEmpty => 'No entries';
@@ -430,4 +430,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String dropboxLastSynced(String date) {
     return 'Last synced $date';
   }
+
+  @override
+  String get historyFilterTitle => 'Filters';
+
+  @override
+  String get historyFilterDateSection => 'Date';
+
+  @override
+  String get historyFilterAnyDate => 'Any date';
+
+  @override
+  String get historyFilterSpecificDay => 'Specific day';
+
+  @override
+  String get historyFilterDateRange => 'Date range';
+
+  @override
+  String get historyFilterTimeOfDaySection => 'Time of day';
+
+  @override
+  String get historyFilterTimeFrom => 'From';
+
+  @override
+  String get historyFilterTimeTo => 'To';
+
+  @override
+  String get historyFilterChange => 'Change';
+
+  @override
+  String get historyFilterClearAll => 'Clear all';
+
+  @override
+  String get historyFilterApply => 'Apply';
+
+  @override
+  String get historyFilterNoResults => 'No entries match the current filters';
 }

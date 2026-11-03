@@ -177,5 +177,19 @@
   "dropboxLastSynced": "Ultima sincronizzazione: {date}",
   "@dropboxLastSynced": {
     "placeholders": { "date": { "type": "String" } }
-  }
+  },
+
+  "historySearchHint": "Cerca voci, categorie, note",
+  "historyFilterTitle": "Filtri",
+  "historyFilterDateSection": "Data",
+  "historyFilterAnyDate": "Qualsiasi data",
+  "historyFilterSpecificDay": "Giorno specifico",
+  "historyFilterDateRange": "Intervallo di date",
+  "historyFilterTimeOfDaySection": "Ora del giorno",
+  "historyFilterTimeFrom": "Da",
+  "historyFilterTimeTo": "A",
+  "historyFilterChange": "Cambia",
+  "historyFilterClearAll": "Cancella tutto",
+  "historyFilterApply": "Applica",
+  "historyFilterNoResults": "Nessuna voce corrisponde ai filtri attuali"
 }

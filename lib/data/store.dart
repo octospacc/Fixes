@@ -11,9 +11,14 @@ class Store extends ChangeNotifier {
   static const _kLanguageCode = 'languageCode';
   static const _kLastModified = 'lastModified';
   static const _kLastSynced = 'lastSynced';
+  static const _kFilterTimeFrom = 'filterTimeFrom';
+  static const _kFilterTimeTo = 'filterTimeTo';
 
   static const _defaultCurrency = 'EUR';
   static const _syncSchemaVersion = 1;
+
+  static const _defaultFilterFromMinutes = 9 * 60;
+  static const _defaultFilterToMinutes = 17 * 60;
 
   final SharedPreferences _prefs;
   List<Item> _items = [];
@@ -23,6 +28,8 @@ class Store extends ChangeNotifier {
   String _languageCode = '';
   DateTime? _lastModified;
   DateTime? _lastSynced;
+  int _filterTimeFrom = _defaultFilterFromMinutes;
+  int _filterTimeTo = _defaultFilterToMinutes;
 
   Store._(this._prefs) {
     _load();
@@ -40,9 +47,9 @@ class Store extends ChangeNotifier {
   String get languageCode => _languageCode;
   DateTime? get lastModified => _lastModified;
   DateTime? get lastSynced => _lastSynced;
+  int get filterTimeFromMinutes => _filterTimeFrom;
+  int get filterTimeToMinutes => _filterTimeTo;
 
-  /// True when local data has changed since the last successful Dropbox
-  /// upload or download, or has never been synced at all.
   bool get hasUnsyncedChanges {
     if (_lastSynced == null) {
       return _items.isNotEmpty || _entries.isNotEmpty;
@@ -80,6 +87,17 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setFilterTimeRange(int fromMinutes, int toMinutes) async {
+    final clampedFrom = fromMinutes.clamp(0, 23 * 60 + 59);
+    final clampedTo = toMinutes.clamp(0, 23 * 60 + 59);
+    if (clampedFrom == _filterTimeFrom && clampedTo == _filterTimeTo) return;
+    _filterTimeFrom = clampedFrom;
+    _filterTimeTo = clampedTo;
+    await _prefs.setInt(_kFilterTimeFrom, clampedFrom);
+    await _prefs.setInt(_kFilterTimeTo, clampedTo);
+    notifyListeners();
+  }
+
   // ---------- Queries ----------
 
   Item? itemById(String id) {
@@ -89,14 +107,31 @@ class Store extends ChangeNotifier {
     return null;
   }
 
+  /// The logical day that a given timestamp belongs to.
   DateTime logicalDay(DateTime dt) {
     final adjusted = dt.subtract(Duration(hours: _dayStartHour));
     return DateTime(adjusted.year, adjusted.month, adjusted.day);
   }
 
+  /// The half-open interval of the logical day containing [anchor].
+  /// Used when you have a moment and want to know which day it falls in.
   (DateTime, DateTime) logicalDayRange(DateTime anchor) {
     final adjusted = anchor.subtract(Duration(hours: _dayStartHour));
     final start = DateTime(adjusted.year, adjusted.month, adjusted.day)
+        .add(Duration(hours: _dayStartHour));
+    final end = start.add(const Duration(days: 1));
+    return (start, end);
+  }
+
+  /// The half-open interval of the calendar date [date], adjusted by
+  /// [dayStartHour]. Used when the user has picked a date label (e.g.
+  /// "Nov 3" from a date picker) and you need the range that label
+  /// actually covers.
+  ///
+  /// With dayStartHour=0, "Nov 3" → [Nov 3 00:00, Nov 4 00:00).
+  /// With dayStartHour=4, "Nov 3" → [Nov 3 04:00, Nov 4 04:00).
+  (DateTime, DateTime) calendarDayRange(DateTime date) {
+    final start = DateTime(date.year, date.month, date.day)
         .add(Duration(hours: _dayStartHour));
     final end = start.add(const Duration(days: 1));
     return (start, end);
@@ -171,7 +206,6 @@ class Store extends ChangeNotifier {
 
   // ---------- Sync ----------
 
-  /// Serialize the entire dataset for upload to Dropbox.
   String toSyncJson() {
     return jsonEncode({
       'schemaVersion': _syncSchemaVersion,
@@ -182,8 +216,6 @@ class Store extends ChangeNotifier {
     });
   }
 
-  /// Merge a downloaded backup into local state. Last-write-wins unless
-  /// [force] is true, in which case remote always replaces local.
   Future<void> mergeFromSync(String jsonString, {bool force = false}) async {
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
@@ -221,8 +253,6 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Call after a successful Dropbox upload or download. Updates the
-  /// "last synced" clock and clears [hasUnsyncedChanges].
   Future<void> markSynced() async {
     _lastSynced = DateTime.now().toUtc();
     await _prefs.setString(_kLastSynced, _lastSynced!.toIso8601String());
@@ -267,6 +297,12 @@ class Store extends ChangeNotifier {
     if (lastSyncStr != null) {
       _lastSynced = DateTime.tryParse(lastSyncStr)?.toUtc();
     }
+    _filterTimeFrom = _prefs.getInt(_kFilterTimeFrom)
+            ?.clamp(0, 23 * 60 + 59) ??
+        _defaultFilterFromMinutes;
+    _filterTimeTo = _prefs.getInt(_kFilterTimeTo)
+            ?.clamp(0, 23 * 60 + 59) ??
+        _defaultFilterToMinutes;
   }
 
   Future<void> _persist() async {
