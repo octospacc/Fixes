@@ -41,6 +41,7 @@ class _EntryFormState extends State<EntryForm> {
       _note = e.note;
     } else if (items.isNotEmpty) {
       _itemId = items.first.id;
+      _price = items.first.defaultPrice;          // <-- CHANGE 1
     }
     _priceCtrl.text = _price?.toStringAsFixed(2) ?? '';
     _noteCtrl.text = _note;
@@ -152,7 +153,13 @@ class _EntryFormState extends State<EntryForm> {
                     ))
                 .toList(),
             onChanged: (v) {
-              if (v != null) setState(() => _itemId = v);
+              if (v != null) {
+                setState(() {                       // <-- CHANGE 2
+                  _itemId = v;
+                  _price = widget.store.itemById(v)?.defaultPrice;
+                  _priceCtrl.text = _price?.toStringAsFixed(2) ?? '';
+                });
+              }
             },
             decoration: InputDecoration(
               labelText: l.entryItemLabel,
