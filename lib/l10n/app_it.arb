@@ -174,8 +174,12 @@
   "dropboxAllSynced": "Tutte le modifiche sincronizzate",
   "dropboxUnsynced": "Modifiche locali non ancora sincronizzate",
   "dropboxNeverSynced": "Mai sincronizzato",
-  "dropboxLastSynced": "Ultima sincronizzazione: {date}",
-  "@dropboxLastSynced": {
+  "dropboxLastUpload": "Ultimo caricamento: {date}",
+  "@dropboxLastUpload": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "dropboxLastDownload": "Ultimo scaricamento: {date}",
+  "@dropboxLastDownload": {
     "placeholders": { "date": { "type": "String" } }
   },
 

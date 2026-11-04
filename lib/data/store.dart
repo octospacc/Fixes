@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 
+enum SyncDirection { upload, download }
+
 class Store extends ChangeNotifier {
   static const _kItems = 'items';
   static const _kEntries = 'entries';
@@ -11,6 +13,7 @@ class Store extends ChangeNotifier {
   static const _kLanguageCode = 'languageCode';
   static const _kLastModified = 'lastModified';
   static const _kLastSynced = 'lastSynced';
+  static const _kLastSyncDirection = 'lastSyncDirection';
   static const _kFilterTimeFrom = 'filterTimeFrom';
   static const _kFilterTimeTo = 'filterTimeTo';
   static const _kFilterPriceMin = 'filterPriceMin';
@@ -30,6 +33,7 @@ class Store extends ChangeNotifier {
   String _languageCode = '';
   DateTime? _lastModified;
   DateTime? _lastSynced;
+  SyncDirection? _lastSyncDirection;
   int _filterTimeFrom = _defaultFilterFromMinutes;
   int _filterTimeTo = _defaultFilterToMinutes;
   String _filterPriceMin = '';
@@ -51,6 +55,7 @@ class Store extends ChangeNotifier {
   String get languageCode => _languageCode;
   DateTime? get lastModified => _lastModified;
   DateTime? get lastSynced => _lastSynced;
+  SyncDirection? get lastSyncDirection => _lastSyncDirection;
   int get filterTimeFromMinutes => _filterTimeFrom;
   int get filterTimeToMinutes => _filterTimeTo;
   String get filterPriceMin => _filterPriceMin;
@@ -104,10 +109,6 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Persisted text values for the price range filter fields.
-  /// Notified intentionally *not* fired — only the filter sheet reads
-  /// these, and it does so on open, so notifying would unnecessarily
-  /// rebuild the whole History list on every keystroke.
   Future<void> setFilterPriceRange(String min, String max) async {
     if (min == _filterPriceMin && max == _filterPriceMax) return;
     _filterPriceMin = min;
@@ -269,9 +270,11 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> markSynced() async {
+  Future<void> markSynced(SyncDirection direction) async {
     _lastSynced = DateTime.now().toUtc();
+    _lastSyncDirection = direction;
     await _prefs.setString(_kLastSynced, _lastSynced!.toIso8601String());
+    await _prefs.setString(_kLastSyncDirection, direction.name);
     notifyListeners();
   }
 
@@ -312,6 +315,13 @@ class Store extends ChangeNotifier {
     final lastSyncStr = _prefs.getString(_kLastSynced);
     if (lastSyncStr != null) {
       _lastSynced = DateTime.tryParse(lastSyncStr)?.toUtc();
+    }
+    final dirStr = _prefs.getString(_kLastSyncDirection);
+    if (dirStr != null) {
+      _lastSyncDirection = SyncDirection.values.firstWhere(
+        (d) => d.name == dirStr,
+        orElse: () => SyncDirection.upload,
+      );
     }
     _filterTimeFrom = _prefs.getInt(_kFilterTimeFrom)
             ?.clamp(0, 23 * 60 + 59) ??

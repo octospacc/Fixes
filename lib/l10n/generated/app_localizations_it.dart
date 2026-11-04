@@ -430,8 +430,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dropboxNeverSynced => 'Mai sincronizzato';
 
   @override
-  String dropboxLastSynced(String date) {
-    return 'Ultima sincronizzazione: $date';
+  String dropboxLastUpload(String date) {
+    return 'Ultimo caricamento: $date';
+  }
+
+  @override
+  String dropboxLastDownload(String date) {
+    return 'Ultimo scaricamento: $date';
   }
 
   @override

@@ -234,7 +234,7 @@ class _SettingsViewState extends State<SettingsView> {
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.cloud_done),
+          leading: const Icon(Icons.cloud),
           title: Text(l.dropboxConnected),
           trailing: TextButton(
             onPressed: () async {
@@ -247,13 +247,13 @@ class _SettingsViewState extends State<SettingsView> {
         _buildSyncStatus(context, l, store, hasUnsynced, error),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.backup),
+          leading: const Icon(Icons.cloud_upload),
           title: Text(l.dropboxUpload),
           onTap: () => _upload(context, l),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.restore),
+          leading: const Icon(Icons.cloud_download),
           title: Text(l.dropboxDownload),
           onTap: () => _download(context, l),
         ),
@@ -269,23 +269,40 @@ class _SettingsViewState extends State<SettingsView> {
     Color error,
   ) {
     final locale = Localizations.localeOf(context).toString();
-    final dateFormat =
-        DateFormat.yMd(locale).add_jm();
+    final dateFormat = DateFormat.yMd(locale).add_jm();
+
+    final IconData icon;
+    final Color? iconColor;
+    if (hasUnsynced) {
+      icon = Icons.sync_problem;
+      iconColor = error;
+    } else if (store.lastSynced == null) {
+      icon = Icons.cloud_queue;
+      iconColor = null;
+    } else if (store.lastSyncDirection == SyncDirection.download) {
+      icon = Icons.cloud_download_outlined;
+      iconColor = null;
+    } else {
+      icon = Icons.cloud_upload_outlined;
+      iconColor = null;
+    }
 
     final String title =
         hasUnsynced ? l.dropboxUnsynced : l.dropboxAllSynced;
-    final String subtitle = store.lastSynced == null
-        ? l.dropboxNeverSynced
-        : l.dropboxLastSynced(
-            dateFormat.format(store.lastSynced!.toLocal()),
-          );
+
+    final String subtitle;
+    if (store.lastSynced == null) {
+      subtitle = l.dropboxNeverSynced;
+    } else {
+      final formatted = dateFormat.format(store.lastSynced!.toLocal());
+      subtitle = store.lastSyncDirection == SyncDirection.download
+          ? l.dropboxLastDownload(formatted)
+          : l.dropboxLastUpload(formatted);
+    }
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(
-        hasUnsynced ? Icons.sync_problem : Icons.sync,
-        color: hasUnsynced ? error : null,
-      ),
+      leading: Icon(icon, color: iconColor),
       title: Text(
         title,
         style: hasUnsynced ? TextStyle(color: error) : null,
@@ -343,7 +360,7 @@ class _SettingsViewState extends State<SettingsView> {
 
     try {
       await DropboxSync.upload(widget.store.toSyncJson());
-      await widget.store.markSynced();
+      await widget.store.markSynced(SyncDirection.upload);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.dropboxUploaded)),
@@ -385,7 +402,7 @@ class _SettingsViewState extends State<SettingsView> {
         return;
       }
       await widget.store.mergeFromSync(json, force: true);
-      await widget.store.markSynced();
+      await widget.store.markSynced(SyncDirection.download);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.dropboxDownloaded)),

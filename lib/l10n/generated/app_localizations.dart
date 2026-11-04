@@ -824,11 +824,17 @@ abstract class AppLocalizations {
   /// **'Never synced'**
   String get dropboxNeverSynced;
 
-  /// No description provided for @dropboxLastSynced.
+  /// No description provided for @dropboxLastUpload.
   ///
   /// In en, this message translates to:
-  /// **'Last synced {date}'**
-  String dropboxLastSynced(String date);
+  /// **'Last upload: {date}'**
+  String dropboxLastUpload(String date);
+
+  /// No description provided for @dropboxLastDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Last download: {date}'**
+  String dropboxLastDownload(String date);
 
   /// No description provided for @historyFilterTitle.
   ///
