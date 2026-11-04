@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'data/auto_sync.dart';
 import 'data/store.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'ui/root_shell.dart';
 
 class FixesApp extends StatelessWidget {
   final Store store;
+  final AutoSyncService autoSync;
 
-  const FixesApp({super.key, required this.store});
+  const FixesApp({
+    super.key,
+    required this.store,
+    required this.autoSync,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +42,7 @@ class FixesApp extends StatelessWidget {
             useMaterial3: true,
           ),
           themeMode: ThemeMode.system,
-          home: RootShell(store: store),
+          home: RootShell(store: store, autoSync: autoSync),
         );
       },
     );

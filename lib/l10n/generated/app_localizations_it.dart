@@ -440,6 +440,27 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get dropboxAutoSync => 'Sincronizzazione automatica';
+
+  @override
+  String get dropboxAutoSyncHintOn =>
+      'Carica dopo le modifiche. Scarica all\'avvio, alla ripresa e ogni minuto mentre l\'app è aperta.';
+
+  @override
+  String get dropboxAutoSyncHintOff =>
+      'Usa i pulsanti qui sotto per sincronizzare manualmente.';
+
+  @override
+  String get dropboxSyncNow => 'Sincronizza ora';
+
+  @override
+  String get dropboxRestore => 'Ripristina da Dropbox';
+
+  @override
+  String get dropboxRestoreConfirm =>
+      'Sostituire i dati locali con il backup su Dropbox? Le modifiche locali andranno perse.';
+
+  @override
   String get historyFilterTitle => 'Filtri';
 
   @override

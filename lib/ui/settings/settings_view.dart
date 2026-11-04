@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/app_info.dart';
+import '../../data/auto_sync.dart';
 import '../../data/csv_manager.dart';
 import '../../data/dropbox_sync.dart';
 import '../../data/store.dart';
@@ -9,8 +10,13 @@ import '../../l10n/generated/app_localizations.dart';
 
 class SettingsView extends StatefulWidget {
   final Store store;
+  final AutoSyncService autoSync;
 
-  const SettingsView({super.key, required this.store});
+  const SettingsView({
+    super.key,
+    required this.store,
+    required this.autoSync,
+  });
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
@@ -245,18 +251,64 @@ class _SettingsViewState extends State<SettingsView> {
           ),
         ),
         _buildSyncStatus(context, l, store, hasUnsynced, error),
-        ListTile(
+        SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.cloud_upload),
-          title: Text(l.dropboxUpload),
-          onTap: () => _upload(context, l),
+          title: Text(l.dropboxAutoSync),
+          subtitle: Text(
+            store.autoSync
+                ? l.dropboxAutoSyncHintOn
+                : l.dropboxAutoSyncHintOff,
+          ),
+          value: store.autoSync,
+          onChanged: (v) => store.setAutoSync(v),
         ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.cloud_download),
-          title: Text(l.dropboxDownload),
-          onTap: () => _download(context, l),
-        ),
+        if (store.autoSync) ...[
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.sync),
+            title: Text(l.dropboxSyncNow),
+            onTap: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              try {
+                await widget.autoSync.syncNow();
+                messenger.showSnackBar(
+                  SnackBar(content: Text(l.dropboxUploaded)),
+                );
+              } catch (e) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(l.dropboxUploadError(e.toString())),
+                  ),
+                );
+              }
+            },
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              Icons.settings_backup_restore,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              l.dropboxRestore,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            onTap: () => _restore(context, l),
+          ),
+        ] else ...[
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.cloud_upload),
+            title: Text(l.dropboxUpload),
+            onTap: () => _upload(context, l),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.cloud_download),
+            title: Text(l.dropboxDownload),
+            onTap: () => _download(context, l),
+          ),
+        ],
       ],
     );
   }
@@ -327,6 +379,8 @@ class _SettingsViewState extends State<SettingsView> {
     try {
       await DropboxSync.completeAuth(code, verifier);
       await _refreshDropboxStatus();
+      // Trigger the first sync via the auto-sync service.
+      await widget.autoSync.onDropboxConnected();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.dropboxConnected)),
@@ -359,7 +413,8 @@ class _SettingsViewState extends State<SettingsView> {
     if (ok != true || !mounted) return;
 
     try {
-      await DropboxSync.upload(widget.store.toSyncJson());
+      final rev = await DropboxSync.upload(widget.store.toSyncJson());
+      if (rev != null) await widget.store.setLastRemoteRev(rev);
       await widget.store.markSynced(SyncDirection.upload);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -393,6 +448,7 @@ class _SettingsViewState extends State<SettingsView> {
     if (ok != true || !mounted) return;
 
     try {
+      final meta = await DropboxSync.getMetadata();
       final json = await DropboxSync.download();
       if (json == null) {
         if (!mounted) return;
@@ -402,6 +458,55 @@ class _SettingsViewState extends State<SettingsView> {
         return;
       }
       await widget.store.mergeFromSync(json, force: true);
+      if (meta != null) await widget.store.setLastRemoteRev(meta.rev);
+      await widget.store.markSynced(SyncDirection.download);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxDownloaded)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.dropboxDownloadError(e.toString()))),
+      );
+    }
+  }
+
+  Future<void> _restore(BuildContext context, AppLocalizations l) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Text(l.dropboxRestoreConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.actionCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.dropboxRestore),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+
+    try {
+      final meta = await DropboxSync.getMetadata();
+      final json = await DropboxSync.download();
+      if (json == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.dropboxNoBackup)),
+        );
+        return;
+      }
+      await widget.store.mergeFromSync(json, force: true);
+      if (meta != null) await widget.store.setLastRemoteRev(meta.rev);
       await widget.store.markSynced(SyncDirection.download);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

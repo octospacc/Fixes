@@ -182,6 +182,12 @@
   "@dropboxLastDownload": {
     "placeholders": { "date": { "type": "String" } }
   },
+  "dropboxAutoSync": "Automatic sync",
+  "dropboxAutoSyncHintOn": "Uploads after changes. Downloads on launch, on resume, and every minute while the app is open.",
+  "dropboxAutoSyncHintOff": "Use the buttons below to sync manually.",
+  "dropboxSyncNow": "Sync now",
+  "dropboxRestore": "Restore from Dropbox",
+  "dropboxRestoreConfirm": "Replace your local data with the Dropbox backup? Local changes will be lost.",
 
   "historySearchHint": "Search entries, categories, notes",
   "historyFilterTitle": "Filters",

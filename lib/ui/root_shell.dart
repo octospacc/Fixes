@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/auto_sync.dart';
 import '../data/store.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'entries/entry_form.dart';
@@ -11,8 +12,13 @@ import 'today/today_view.dart';
 
 class RootShell extends StatefulWidget {
   final Store store;
+  final AutoSyncService autoSync;
 
-  const RootShell({super.key, required this.store});
+  const RootShell({
+    super.key,
+    required this.store,
+    required this.autoSync,
+  });
 
   @override
   State<RootShell> createState() => _RootShellState();
@@ -64,7 +70,10 @@ class _RootShellState extends State<RootShell> {
           HistoryView(store: widget.store),
           StatsView(store: widget.store),
           ItemsView(store: widget.store),
-          SettingsView(store: widget.store),
+          SettingsView(
+            store: widget.store,
+            autoSync: widget.autoSync,
+          ),
         ],
       ),
       floatingActionButton: fab,

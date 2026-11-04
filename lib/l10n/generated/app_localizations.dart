@@ -836,6 +836,42 @@ abstract class AppLocalizations {
   /// **'Last download: {date}'**
   String dropboxLastDownload(String date);
 
+  /// No description provided for @dropboxAutoSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic sync'**
+  String get dropboxAutoSync;
+
+  /// No description provided for @dropboxAutoSyncHintOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploads after changes. Downloads on launch, on resume, and every minute while the app is open.'**
+  String get dropboxAutoSyncHintOn;
+
+  /// No description provided for @dropboxAutoSyncHintOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the buttons below to sync manually.'**
+  String get dropboxAutoSyncHintOff;
+
+  /// No description provided for @dropboxSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get dropboxSyncNow;
+
+  /// No description provided for @dropboxRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from Dropbox'**
+  String get dropboxRestore;
+
+  /// No description provided for @dropboxRestoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace your local data with the Dropbox backup? Local changes will be lost.'**
+  String get dropboxRestoreConfirm;
+
   /// No description provided for @historyFilterTitle.
   ///
   /// In en, this message translates to:

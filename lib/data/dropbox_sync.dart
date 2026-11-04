@@ -5,17 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Dropbox sync using PKCE OAuth 2.0 (public client, no secret).
-///
-/// Setup: fill in [_appKey] with the App Key from
-/// https://www.dropbox.com/developers/apps.
-///
-/// In the Dropbox App Console:
-///   - Choose "Scoped access"
-///   - Choose "App folder"
-///   - Permissions: files.content.read, files.content.write, files.metadata.read
-///   - Redirect URIs: add "https://localhost" (allows PKCE code-paste flow)
-///   - Allow "PKCE" (no client secret)
 class DropboxSync {
   static const _appKey = String.fromEnvironment('DROPBOX_APP_KEY');
   static const _remotePath = '/fixes_backup.json';
@@ -40,8 +29,6 @@ class DropboxSync {
 
   // ---------- OAuth (PKCE, manual code paste) ----------
 
-  /// Step 1: build the authorization URL. Store [verifier] and pass it to
-  /// [completeAuth] after the user pastes the code.
   static String buildAuthUrl(String verifier) {
     final challenge = _computeChallenge(verifier);
     final params = {
@@ -49,14 +36,12 @@ class DropboxSync {
       'response_type': 'code',
       'code_challenge': challenge,
       'code_challenge_method': 'S256',
-      // 'redirect_uri': 'https://localhost',
       'token_access_type': 'offline',
     };
     final uri = Uri.https('www.dropbox.com', '/oauth2/authorize', params);
     return uri.toString();
   }
 
-  /// Step 2: exchange the pasted code for tokens.
   static Future<void> completeAuth(String code, String verifier) async {
     final response = await http.post(
       Uri.parse('https://api.dropboxapi.com/oauth2/token'),
@@ -66,7 +51,6 @@ class DropboxSync {
         'grant_type': 'authorization_code',
         'code_verifier': verifier,
         'client_id': _appKey,
-        // 'redirect_uri': 'https://localhost',
       },
     );
 
@@ -94,9 +78,10 @@ class DropboxSync {
     );
   }
 
-  // ---------- Upload / Download ----------
+  // ---------- Upload / Download / Metadata ----------
 
-  static Future<void> upload(String json) async {
+  /// Uploads the JSON and returns the new file rev, or null on failure.
+  static Future<String?> upload(String json) async {
     final token = await _getValidAccessToken();
     if (token == null) throw Exception('Not signed in to Dropbox');
 
@@ -121,6 +106,9 @@ class DropboxSync {
         'Upload failed (${response.statusCode}): ${response.body}',
       );
     }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return data['rev'] as String?;
   }
 
   /// Returns the backup contents, or null if no backup exists.
@@ -136,10 +124,7 @@ class DropboxSync {
       },
     );
 
-    if (response.statusCode == 409) {
-      // Conflict = file not found
-      return null;
-    }
+    if (response.statusCode == 409) return null;
     if (response.statusCode != 200) {
       throw Exception(
         'Download failed (${response.statusCode}): ${response.body}',
@@ -147,6 +132,38 @@ class DropboxSync {
     }
 
     return utf8.decode(response.bodyBytes);
+  }
+
+  /// Returns the remote file metadata (server_modified + rev), or null if
+  /// the file does not exist yet.
+  static Future<({DateTime serverModified, String rev})?> getMetadata() async {
+    final token = await _getValidAccessToken();
+    if (token == null) return null;
+
+    final response = await http.post(
+      Uri.parse('https://api.dropboxapi.com/2/files/get_metadata'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'path': _remotePath}),
+    );
+
+    if (response.statusCode == 409) return null;
+    if (response.statusCode != 200) {
+      debugPrint('[dropbox] getMetadata failed: ${response.body}');
+      return null;
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final modifiedStr = data['server_modified'] as String?;
+    final rev = data['rev'] as String?;
+    if (modifiedStr == null || rev == null) return null;
+
+    final modified = DateTime.tryParse(modifiedStr);
+    if (modified == null) return null;
+
+    return (serverModified: modified, rev: rev);
   }
 
   // ---------- Token management ----------
@@ -184,7 +201,6 @@ class DropboxSync {
       );
 
       if (response.statusCode != 200) {
-        // Token revoked or invalid — force sign-out
         await signOut();
         return null;
       }
@@ -203,7 +219,7 @@ class DropboxSync {
 
       return access;
     } catch (e) {
-      debugPrint('Dropbox refresh failed: $e');
+      debugPrint('[dropbox] refresh failed: $e');
       return null;
     }
   }

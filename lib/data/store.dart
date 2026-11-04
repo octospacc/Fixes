@@ -14,6 +14,8 @@ class Store extends ChangeNotifier {
   static const _kLastModified = 'lastModified';
   static const _kLastSynced = 'lastSynced';
   static const _kLastSyncDirection = 'lastSyncDirection';
+  static const _kLastRemoteRev = 'lastRemoteRev';
+  static const _kAutoSync = 'autoSync';
   static const _kFilterTimeFrom = 'filterTimeFrom';
   static const _kFilterTimeTo = 'filterTimeTo';
   static const _kFilterPriceMin = 'filterPriceMin';
@@ -34,6 +36,8 @@ class Store extends ChangeNotifier {
   DateTime? _lastModified;
   DateTime? _lastSynced;
   SyncDirection? _lastSyncDirection;
+  String? _lastRemoteRev;
+  bool _autoSync = true;
   int _filterTimeFrom = _defaultFilterFromMinutes;
   int _filterTimeTo = _defaultFilterToMinutes;
   String _filterPriceMin = '';
@@ -56,6 +60,8 @@ class Store extends ChangeNotifier {
   DateTime? get lastModified => _lastModified;
   DateTime? get lastSynced => _lastSynced;
   SyncDirection? get lastSyncDirection => _lastSyncDirection;
+  String? get lastRemoteRev => _lastRemoteRev;
+  bool get autoSync => _autoSync;
   int get filterTimeFromMinutes => _filterTimeFrom;
   int get filterTimeToMinutes => _filterTimeTo;
   String get filterPriceMin => _filterPriceMin;
@@ -95,6 +101,13 @@ class Store extends ChangeNotifier {
     } else {
       await _prefs.setString(_kLanguageCode, code);
     }
+    notifyListeners();
+  }
+
+  Future<void> setAutoSync(bool value) async {
+    if (value == _autoSync) return;
+    _autoSync = value;
+    await _prefs.setBool(_kAutoSync, value);
     notifyListeners();
   }
 
@@ -208,16 +221,14 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clears local data without marking the change as "unsynced". This
+  /// deliberately leaves the Dropbox backup untouched — the user must
+  /// explicitly upload or download to affect the cloud copy.
   Future<void> reset() async {
     _items = [];
     _entries = [];
-    _touch();
     await _prefs.remove(_kItems);
     await _prefs.remove(_kEntries);
-    await _prefs.setString(
-      _kLastModified,
-      _lastModified!.toIso8601String(),
-    );
     notifyListeners();
   }
 
@@ -233,7 +244,10 @@ class Store extends ChangeNotifier {
     });
   }
 
-  Future<void> mergeFromSync(String jsonString, {bool force = false}) async {
+  /// Applies [jsonString] to local state. Returns true if the merge
+  /// actually replaced local data, false if local was newer (skip) or if
+  /// the JSON was invalid.
+  Future<bool> mergeFromSync(String jsonString, {bool force = false}) async {
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
     final schemaVersion = data['schemaVersion'] as int? ?? 0;
@@ -251,7 +265,7 @@ class Store extends ChangeNotifier {
         _lastModified != null &&
         _lastModified!.toUtc().isAfter(remoteModified)) {
       debugPrint('Local data is newer; skipping merge');
-      return;
+      return false;
     }
 
     _items = (data['items'] as List)
@@ -268,6 +282,7 @@ class Store extends ChangeNotifier {
       _lastModified!.toIso8601String(),
     );
     notifyListeners();
+    return true;
   }
 
   Future<void> markSynced(SyncDirection direction) async {
@@ -276,6 +291,19 @@ class Store extends ChangeNotifier {
     await _prefs.setString(_kLastSynced, _lastSynced!.toIso8601String());
     await _prefs.setString(_kLastSyncDirection, direction.name);
     notifyListeners();
+  }
+
+  /// Records the Dropbox file rev we've last seen. Used by auto-sync to
+  /// skip downloads when the remote file hasn't changed.
+  Future<void> setLastRemoteRev(String? rev) async {
+    if (rev == _lastRemoteRev) return;
+    _lastRemoteRev = rev;
+    if (rev == null) {
+      await _prefs.remove(_kLastRemoteRev);
+    } else {
+      await _prefs.setString(_kLastRemoteRev, rev);
+    }
+    // Intentionally no notifyListeners — this is internal sync state.
   }
 
   // ---------- Internal ----------
@@ -323,6 +351,8 @@ class Store extends ChangeNotifier {
         orElse: () => SyncDirection.upload,
       );
     }
+    _lastRemoteRev = _prefs.getString(_kLastRemoteRev);
+    _autoSync = _prefs.getBool(_kAutoSync) ?? true;
     _filterTimeFrom = _prefs.getInt(_kFilterTimeFrom)
             ?.clamp(0, 23 * 60 + 59) ??
         _defaultFilterFromMinutes;
