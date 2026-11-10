@@ -26,7 +26,7 @@ class _ItemFormState extends State<ItemForm> {
     _nameCtrl = TextEditingController(text: widget.item?.name ?? '');
     _categoryCtrl = TextEditingController(text: widget.item?.category ?? '');
     _priceCtrl = TextEditingController(
-      text: widget.item?.defaultPrice?.toStringAsFixed(2) ?? '',
+      text: Money.formatForInput(widget.item?.defaultPrice),
     );
   }
 

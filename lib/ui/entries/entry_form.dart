@@ -44,7 +44,7 @@ class _EntryFormState extends State<EntryForm> {
       _itemId = items.first.id;
       _price = items.first.defaultPrice;
     }
-    _priceCtrl.text = _price?.toStringAsFixed(2) ?? '';
+    _priceCtrl.text = Money.formatForInput(_price);
     _noteCtrl.text = _note;
   }
 
@@ -172,7 +172,7 @@ class _EntryFormState extends State<EntryForm> {
                 setState(() {
                   _itemId = v;
                   _price = widget.store.itemById(v)?.defaultPrice;
-                  _priceCtrl.text = _price?.toStringAsFixed(2) ?? '';
+                  _priceCtrl.text = Money.formatForInput(_price);
                 });
               }
             },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
+import '../../data/money.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -33,8 +34,7 @@ class QuickAddRow extends StatelessWidget {
           return OutlinedButton(
             onPressed: () => _quickAdd(item),
             style: OutlinedButton.styleFrom(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -51,7 +51,7 @@ class QuickAddRow extends StatelessWidget {
                 if (item.defaultPrice != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    item.defaultPrice!.toStringAsFixed(2),
+                    Money.formatForInput(item.defaultPrice),
                     style: const TextStyle(fontSize: 12),
                   ),
                 ],
