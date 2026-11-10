@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
+import '../../data/money.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -41,7 +42,7 @@ class _EntryFormState extends State<EntryForm> {
       _note = e.note;
     } else if (items.isNotEmpty) {
       _itemId = items.first.id;
-      _price = items.first.defaultPrice;          // <-- CHANGE 1
+      _price = items.first.defaultPrice;
     }
     _priceCtrl.text = _price?.toStringAsFixed(2) ?? '';
     _noteCtrl.text = _note;
@@ -75,18 +76,32 @@ class _EntryFormState extends State<EntryForm> {
   }
 
   Future<void> _pickTime() async {
-    final time = await showTimePicker(
+    final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_date),
+      builder: (context, child) {
+        // Force 24-hour format inside the picker. The app already displays
+        // times as HH:MM everywhere, so the picker's input mode must use
+        // the same format. Without this, on platforms where MediaQuery
+        // reports a 12-hour preference that disagrees with the app's
+        // locale, the picker shows 24h in text mode but the parser rejects
+        // it — the "valid input read as invalid" bug.
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: true,
+          ),
+          child: child!,
+        );
+      },
     );
-    if (time != null) {
+    if (picked != null) {
       setState(() {
         _date = DateTime(
           _date.year,
           _date.month,
           _date.day,
-          time.hour,
-          time.minute,
+          picked.hour,
+          picked.minute,
         );
       });
     }
@@ -154,7 +169,7 @@ class _EntryFormState extends State<EntryForm> {
                 .toList(),
             onChanged: (v) {
               if (v != null) {
-                setState(() {                       // <-- CHANGE 2
+                setState(() {
                   _itemId = v;
                   _price = widget.store.itemById(v)?.defaultPrice;
                   _priceCtrl.text = _price?.toStringAsFixed(2) ?? '';
@@ -227,7 +242,7 @@ class _EntryFormState extends State<EntryForm> {
               labelText: l.entryPricePerUnit,
               border: const OutlineInputBorder(),
             ),
-            onChanged: (v) => _price = double.tryParse(v),
+            onChanged: (v) => _price = Money.parse(v),
           ),
           const SizedBox(height: 16),
           TextField(

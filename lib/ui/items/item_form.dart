@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
+import '../../data/money.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -41,7 +42,7 @@ class _ItemFormState extends State<ItemForm> {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
 
-    final price = double.tryParse(_priceCtrl.text);
+    final price = Money.parse(_priceCtrl.text);
     final category = _categoryCtrl.text.trim();
 
     if (widget.item == null) {
