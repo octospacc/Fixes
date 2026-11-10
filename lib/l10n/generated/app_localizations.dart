@@ -1039,6 +1039,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open {url}'**
   String settingsRepoOpenFailed(String url);
+
+  /// No description provided for @syncIndicatorSyncedAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'All changes synced — tap to sync now'**
+  String get syncIndicatorSyncedAuto;
+
+  /// No description provided for @syncIndicatorUnsyncedAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes pending — tap to sync now'**
+  String get syncIndicatorUnsyncedAuto;
+
+  /// No description provided for @syncIndicatorSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get syncIndicatorSyncing;
+
+  /// No description provided for @syncIndicatorSyncedManual.
+  ///
+  /// In en, this message translates to:
+  /// **'All changes synced'**
+  String get syncIndicatorSyncedManual;
+
+  /// No description provided for @syncIndicatorUnsyncedManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes pending — sync from Settings'**
+  String get syncIndicatorUnsyncedManual;
 }
 
 class _AppLocalizationsDelegate

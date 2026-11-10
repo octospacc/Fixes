@@ -34,6 +34,7 @@ class _SettingsViewState extends State<SettingsView> {
 
   Future<void> _refreshDropboxStatus() async {
     final connected = await DropboxSync.isSignedIn();
+    widget.store.setDropboxConnected(connected);
     if (!mounted) return;
     setState(() {
       _dropboxConnected = connected;

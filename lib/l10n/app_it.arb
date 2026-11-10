@@ -231,5 +231,11 @@
   "settingsRepoOpenFailed": "Impossibile aprire {url}",
   "@settingsRepoOpenFailed": {
     "placeholders": { "url": { "type": "String" } }
-  }
+  },
+
+  "syncIndicatorSyncedAuto": "Tutte le modifiche sincronizzate — tocca per sincronizzare ora",
+  "syncIndicatorUnsyncedAuto": "Modifiche in sospeso — tocca per sincronizzare ora",
+  "syncIndicatorSyncing": "Sincronizzazione…",
+  "syncIndicatorSyncedManual": "Tutte le modifiche sincronizzate",
+  "syncIndicatorUnsyncedManual": "Modifiche in sospeso — sincronizza dalle Impostazioni"
 }

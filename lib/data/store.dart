@@ -38,6 +38,8 @@ class Store extends ChangeNotifier {
   SyncDirection? _lastSyncDirection;
   String? _lastRemoteRev;
   bool _autoSync = true;
+  bool _syncing = false;
+  bool _dropboxConnected = false;
   int _filterTimeFrom = _defaultFilterFromMinutes;
   int _filterTimeTo = _defaultFilterToMinutes;
   String _filterPriceMin = '';
@@ -62,6 +64,8 @@ class Store extends ChangeNotifier {
   SyncDirection? get lastSyncDirection => _lastSyncDirection;
   String? get lastRemoteRev => _lastRemoteRev;
   bool get autoSync => _autoSync;
+  bool get syncing => _syncing;
+  bool get dropboxConnected => _dropboxConnected;
   int get filterTimeFromMinutes => _filterTimeFrom;
   int get filterTimeToMinutes => _filterTimeTo;
   String get filterPriceMin => _filterPriceMin;
@@ -108,6 +112,23 @@ class Store extends ChangeNotifier {
     if (value == _autoSync) return;
     _autoSync = value;
     await _prefs.setBool(_kAutoSync, value);
+    notifyListeners();
+  }
+
+  /// Transient: true while a Dropbox upload or download is running.
+  /// Drives the app-bar spinner. Not persisted.
+  void setSyncing(bool value) {
+    if (value == _syncing) return;
+    _syncing = value;
+    notifyListeners();
+  }
+
+  /// Transient: reflects the current Dropbox auth state. Set at launch
+  /// from `DropboxSync.isSignedIn()` and updated by Settings when the
+  /// user connects or disconnects. Not persisted.
+  void setDropboxConnected(bool value) {
+    if (value == _dropboxConnected) return;
+    _dropboxConnected = value;
     notifyListeners();
   }
 
@@ -221,9 +242,6 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clears local data without marking the change as "unsynced". This
-  /// deliberately leaves the Dropbox backup untouched — the user must
-  /// explicitly upload or download to affect the cloud copy.
   Future<void> reset() async {
     _items = [];
     _entries = [];
@@ -244,9 +262,6 @@ class Store extends ChangeNotifier {
     });
   }
 
-  /// Applies [jsonString] to local state. Returns true if the merge
-  /// actually replaced local data, false if local was newer (skip) or if
-  /// the JSON was invalid.
   Future<bool> mergeFromSync(String jsonString, {bool force = false}) async {
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
@@ -293,8 +308,6 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Records the Dropbox file rev we've last seen. Used by auto-sync to
-  /// skip downloads when the remote file hasn't changed.
   Future<void> setLastRemoteRev(String? rev) async {
     if (rev == _lastRemoteRev) return;
     _lastRemoteRev = rev;
@@ -303,7 +316,6 @@ class Store extends ChangeNotifier {
     } else {
       await _prefs.setString(_kLastRemoteRev, rev);
     }
-    // Intentionally no notifyListeners — this is internal sync state.
   }
 
   // ---------- Internal ----------

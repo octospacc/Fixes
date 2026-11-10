@@ -4,17 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'dropbox_sync.dart';
 import 'store.dart';
 
-/// Watches the [Store] and Dropbox in the background:
-///
-/// - Debounced upload after any local data change (if `autoSync` is on).
-/// - Periodic download check while foregrounded (60s interval).
-/// - Download on launch and on resume.
-/// - Full round trip on connect and on "Sync now".
-///
-/// Whole-file sync: the last writer wins. The app is designed for
-/// one-device-at-a-time use; concurrent edits on two devices will lose
-/// one side's changes. A proper per-entry merge would require schema
-/// changes not currently in scope.
 class AutoSyncService with WidgetsBindingObserver {
   final Store store;
   Timer? _uploadDebounce;
@@ -106,6 +95,7 @@ class AutoSyncService with WidgetsBindingObserver {
       return;
     }
     _busy = true;
+    store.setSyncing(true);
     try {
       if (!await DropboxSync.isSignedIn()) return;
       if (!store.hasUnsyncedChanges) return;
@@ -122,6 +112,7 @@ class AutoSyncService with WidgetsBindingObserver {
         _uploadDebounce = Timer(_retryDelay, _push);
       }
     } finally {
+      store.setSyncing(false);
       _busy = false;
       _drainPending();
     }
@@ -136,17 +127,16 @@ class AutoSyncService with WidgetsBindingObserver {
       return;
     }
     _busy = true;
+    store.setSyncing(true);
     try {
       if (!await DropboxSync.isSignedIn()) return;
 
       final meta = await DropboxSync.getMetadata();
       if (meta == null) {
-        // No remote file yet — push if we have local data to seed it.
         if (store.hasUnsyncedChanges) _scheduleUpload();
         return;
       }
       if (meta.rev == store.lastRemoteRev) {
-        // Remote unchanged. Make sure local edits (if any) get pushed.
         if (store.hasUnsyncedChanges) _scheduleUpload();
         return;
       }
@@ -160,20 +150,17 @@ class AutoSyncService with WidgetsBindingObserver {
       if (didMerge) {
         await store.markSynced(SyncDirection.download);
       } else {
-        // Local data was newer than the remote; push ours over it.
         _scheduleUpload();
       }
     } catch (e) {
       debugPrint('[auto-sync] download failed: $e');
     } finally {
+      store.setSyncing(false);
       _busy = false;
       _drainPending();
     }
   }
 
-  /// Runs any operation that was requested while [_busy] was true.
-  /// Pull is prioritised over push so we check the remote before
-  /// potentially overwriting it.
   void _drainPending() {
     if (_busy) return;
     if (_pendingPull) {
@@ -185,7 +172,7 @@ class AutoSyncService with WidgetsBindingObserver {
     }
   }
 
-  // ---------- Public API used by Settings ----------
+  // ---------- Public API ----------
 
   Future<void> onDropboxConnected() async {
     if (!_active) return;

@@ -231,5 +231,11 @@
   "settingsRepoOpenFailed": "Could not open {url}",
   "@settingsRepoOpenFailed": {
     "placeholders": { "url": { "type": "String" } }
-  }
+  },
+
+  "syncIndicatorSyncedAuto": "All changes synced — tap to sync now",
+  "syncIndicatorUnsyncedAuto": "Changes pending — tap to sync now",
+  "syncIndicatorSyncing": "Syncing…",
+  "syncIndicatorSyncedManual": "All changes synced",
+  "syncIndicatorUnsyncedManual": "Changes pending — sync from Settings"
 }

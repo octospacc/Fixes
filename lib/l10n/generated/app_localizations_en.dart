@@ -548,4 +548,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsRepoOpenFailed(String url) {
     return 'Could not open $url';
   }
+
+  @override
+  String get syncIndicatorSyncedAuto => 'All changes synced — tap to sync now';
+
+  @override
+  String get syncIndicatorUnsyncedAuto => 'Changes pending — tap to sync now';
+
+  @override
+  String get syncIndicatorSyncing => 'Syncing…';
+
+  @override
+  String get syncIndicatorSyncedManual => 'All changes synced';
+
+  @override
+  String get syncIndicatorUnsyncedManual =>
+      'Changes pending — sync from Settings';
 }

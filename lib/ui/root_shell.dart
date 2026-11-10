@@ -62,7 +62,23 @@ class _RootShellState extends State<RootShell> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(titles[_index])),
+      appBar: AppBar(
+        title: Text(titles[_index]),
+        actions: [
+          ListenableBuilder(
+            listenable: widget.store,
+            builder: (context, _) {
+              if (!widget.store.dropboxConnected) {
+                return const SizedBox.shrink();
+              }
+              return _SyncAction(
+                store: widget.store,
+                autoSync: widget.autoSync,
+              );
+            },
+          ),
+        ],
+      ),
       body: IndexedStack(
         index: _index,
         children: [
@@ -103,6 +119,77 @@ class _RootShellState extends State<RootShell> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SyncAction extends StatelessWidget {
+  final Store store;
+  final AutoSyncService autoSync;
+
+  const _SyncAction({required this.store, required this.autoSync});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final error = Theme.of(context).colorScheme.error;
+
+    if (store.syncing) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final unsynced = store.hasUnsyncedChanges;
+    final auto = store.autoSync;
+
+    final IconData icon;
+    final Color? color;
+    if (unsynced) {
+      icon = Icons.sync_problem;
+      color = error;
+    } else {
+      icon = Icons.cloud_done_outlined;
+      color = null;
+    }
+
+    final tooltip = auto
+        ? (unsynced
+            ? l.syncIndicatorUnsyncedAuto
+            : l.syncIndicatorSyncedAuto)
+        : (unsynced
+            ? l.syncIndicatorUnsyncedManual
+            : l.syncIndicatorSyncedManual);
+
+    // When auto-sync is off, the icon is a passive indicator. Tapping it
+    // would be a manual sync, which contradicts the user's choice to only
+    // sync from the Settings screen.
+    if (!auto) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Center(
+          child: Tooltip(
+            message: tooltip,
+            child: Icon(icon, color: color),
+          ),
+        ),
+      );
+    }
+
+    return IconButton(
+      tooltip: tooltip,
+      icon: Icon(icon, color: color),
+      onPressed: () => autoSync.syncNow(),
     );
   }
 }
