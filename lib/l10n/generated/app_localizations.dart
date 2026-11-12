@@ -1004,6 +1004,12 @@ abstract class AppLocalizations {
   /// **'Max'**
   String get historyFilterPriceMax;
 
+  /// No description provided for @historyFilterWeekdaySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Days of the week'**
+  String get historyFilterWeekdaySection;
+
   /// No description provided for @statsTopCategories.
   ///
   /// In en, this message translates to:

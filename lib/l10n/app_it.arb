@@ -212,6 +212,7 @@
   "historyFilterPriceRange": "Intervallo di prezzo",
   "historyFilterPriceMin": "Min",
   "historyFilterPriceMax": "Max",
+  "historyFilterWeekdaySection": "Giorni della settimana",
 
   "statsTopCategories": "Categorie principali",
   "statsCurrentStreak": "giorni di fila",

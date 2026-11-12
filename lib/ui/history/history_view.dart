@@ -45,6 +45,7 @@ class _HistoryViewState extends State<HistoryView> {
           widget.store.calendarDayRange(_filter.dateRange!.end);
       if (e.date.isBefore(start) || !e.date.isBefore(end)) return false;
     }
+    if (!_filter.matchesWeekday(e.date)) return false;
     if (_filter.timeRange != null && !_filter.timeRange!.matches(e.date)) {
       return false;
     }
@@ -168,17 +169,11 @@ class _HistoryViewState extends State<HistoryView> {
 
     final chips = <Widget>[];
 
-    // Date chip
     if (_filter.dateMode == DateFilterMode.specificDay &&
         _filter.specificDay != null) {
       chips.add(InputChip(
         label: Text(_dayLabel(_filter.specificDay!, context, l)),
-        onDeleted: () => setState(() {
-          _filter = HistoryFilter(
-            timeRange: _filter.timeRange,
-            priceFilter: _filter.priceFilter,
-          );
-        }),
+        onDeleted: () => setState(() => _filter = _filter.withoutDate()),
         deleteIcon: const Icon(Icons.close, size: 16),
       ));
     } else if (_filter.dateMode == DateFilterMode.range &&
@@ -188,47 +183,35 @@ class _HistoryViewState extends State<HistoryView> {
           '${dateFormat.format(_filter.dateRange!.start)} – '
           '${dateFormat.format(_filter.dateRange!.end)}',
         ),
-        onDeleted: () => setState(() {
-          _filter = HistoryFilter(
-            timeRange: _filter.timeRange,
-            priceFilter: _filter.priceFilter,
-          );
-        }),
+        onDeleted: () => setState(() => _filter = _filter.withoutDate()),
         deleteIcon: const Icon(Icons.close, size: 16),
       ));
     }
 
-    // Time chip
+    if (_filter.weekdays.isNotEmpty) {
+      chips.add(InputChip(
+        label: Text(_weekdayChipLabel(context)),
+        onDeleted: () =>
+            setState(() => _filter = _filter.withoutWeekdays()),
+        deleteIcon: const Icon(Icons.close, size: 16),
+      ));
+    }
+
     if (_filter.timeRange != null) {
       chips.add(InputChip(
         label: Text(
           '${_filter.timeRange!.start.format(context)} – '
           '${_filter.timeRange!.end.format(context)}',
         ),
-        onDeleted: () => setState(() {
-          _filter = HistoryFilter(
-            dateMode: _filter.dateMode,
-            specificDay: _filter.specificDay,
-            dateRange: _filter.dateRange,
-            priceFilter: _filter.priceFilter,
-          );
-        }),
+        onDeleted: () => setState(() => _filter = _filter.withoutTime()),
         deleteIcon: const Icon(Icons.close, size: 16),
       ));
     }
 
-    // Price chip
     if (_filter.priceFilter.isActive) {
       chips.add(InputChip(
         label: Text(_priceChipLabel(context, l)),
-        onDeleted: () => setState(() {
-          _filter = HistoryFilter(
-            dateMode: _filter.dateMode,
-            specificDay: _filter.specificDay,
-            dateRange: _filter.dateRange,
-            timeRange: _filter.timeRange,
-          );
-        }),
+        onDeleted: () => setState(() => _filter = _filter.withoutPrice()),
         deleteIcon: const Icon(Icons.close, size: 16),
       ));
     }
@@ -250,6 +233,14 @@ class _HistoryViewState extends State<HistoryView> {
         ],
       ),
     );
+  }
+
+  String _weekdayChipLabel(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    final sorted = _filter.weekdays.toList()..sort();
+    return sorted.map((wd) {
+      return DateFormat.E(locale).format(DateTime(2024, 1, wd));
+    }).join(', ');
   }
 
   String _priceChipLabel(BuildContext context, AppLocalizations l) {

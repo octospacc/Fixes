@@ -529,6 +529,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get historyFilterPriceMax => 'Max';
 
   @override
+  String get historyFilterWeekdaySection => 'Giorni della settimana';
+
+  @override
   String get statsTopCategories => 'Categorie principali';
 
   @override

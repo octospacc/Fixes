@@ -36,8 +36,6 @@ class PriceFilter {
 
   bool get isActive => mode != PriceFilterMode.any;
 
-  /// [pricePerUnit] is the entry's stored per-unit price, or null if the
-  /// entry has no price set.
   bool matches(double? pricePerUnit) {
     switch (mode) {
       case PriceFilterMode.any:
@@ -62,12 +60,17 @@ class HistoryFilter {
   final TimeRange? timeRange;
   final PriceFilter priceFilter;
 
+  /// Weekday numbers per [DateTime.weekday]: 1=Mon … 7=Sun.
+  /// Empty means "any weekday".
+  final Set<int> weekdays;
+
   const HistoryFilter({
     this.dateMode = DateFilterMode.any,
     this.specificDay,
     this.dateRange,
     this.timeRange,
     this.priceFilter = const PriceFilter(),
+    this.weekdays = const {},
   });
 
   static const empty = HistoryFilter();
@@ -76,7 +79,8 @@ class HistoryFilter {
       (dateMode == DateFilterMode.specificDay && specificDay != null) ||
       (dateMode == DateFilterMode.range && dateRange != null) ||
       timeRange != null ||
-      priceFilter.isActive;
+      priceFilter.isActive ||
+      weekdays.isNotEmpty;
 
   int get activeCount {
     var n = 0;
@@ -84,6 +88,49 @@ class HistoryFilter {
     if (dateMode == DateFilterMode.range && dateRange != null) n++;
     if (timeRange != null) n++;
     if (priceFilter.isActive) n++;
+    if (weekdays.isNotEmpty) n++;
     return n;
   }
+
+  bool matchesWeekday(DateTime dt) {
+    if (weekdays.isEmpty) return true;
+    return weekdays.contains(dt.weekday);
+  }
+
+  // ---------- Selective-clearing helpers ----------
+  //
+  // Each returns a new filter with one dimension removed, keeping every
+  // other dimension intact. Used by the chip row when the user taps ×
+  // on an individual filter. Centralised here so adding a new filter
+  // dimension only touches this file.
+
+  HistoryFilter withoutDate() => HistoryFilter(
+        timeRange: timeRange,
+        priceFilter: priceFilter,
+        weekdays: weekdays,
+      );
+
+  HistoryFilter withoutTime() => HistoryFilter(
+        dateMode: dateMode,
+        specificDay: specificDay,
+        dateRange: dateRange,
+        priceFilter: priceFilter,
+        weekdays: weekdays,
+      );
+
+  HistoryFilter withoutPrice() => HistoryFilter(
+        dateMode: dateMode,
+        specificDay: specificDay,
+        dateRange: dateRange,
+        timeRange: timeRange,
+        weekdays: weekdays,
+      );
+
+  HistoryFilter withoutWeekdays() => HistoryFilter(
+        dateMode: dateMode,
+        specificDay: specificDay,
+        dateRange: dateRange,
+        timeRange: timeRange,
+        priceFilter: priceFilter,
+      );
 }

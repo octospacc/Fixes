@@ -36,6 +36,7 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
   late TimeOfDay _timeFrom;
   late TimeOfDay _timeTo;
   late PriceFilterMode _priceMode;
+  late Set<int> _weekdays;
   late final TextEditingController _priceMinCtrl;
   late final TextEditingController _priceMaxCtrl;
 
@@ -62,6 +63,7 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
         TextEditingController(text: widget.store.filterPriceMin);
     _priceMaxCtrl =
         TextEditingController(text: widget.store.filterPriceMax);
+    _weekdays = Set<int>.from(widget.initial.weekdays);
 
     if (_dateMode == DateFilterMode.specificDay && _specificDay == null) {
       _specificDay = _today();
@@ -105,8 +107,6 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
         max = t;
       }
       if (min == null && max == null) {
-        // Range selected but no bounds typed — treat as "any" so the
-        // chip does not show an empty range.
         priceFilter = const PriceFilter();
       } else {
         priceFilter = PriceFilter(
@@ -128,6 +128,7 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
           ? TimeRange(start: _timeFrom, end: _timeTo)
           : null,
       priceFilter: priceFilter,
+      weekdays: Set.unmodifiable(_weekdays),
     );
   }
 
@@ -184,12 +185,29 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
     }
   }
 
+  /// Returns the weekday (1..7) at position [index] in the display order,
+  /// honouring the locale's first day of week.
+  int _weekdayAt(int index, int firstDayIndex) {
+    // DateTime.weekday is 1=Mon..7=Sun.
+    // firstDayIndex is 0 (Sun) or 1 (Mon) per MaterialLocalizations.
+    final start = firstDayIndex == 0 ? 7 : 1;
+    return ((start - 1 + index) % 7) + 1;
+  }
+
+  String _weekdayShortName(int weekday, String locale) {
+    // 2024-01-01 is a Monday, so DateTime(2024, 1, weekday) lands on the
+    // requested weekday for weekday in 1..7.
+    return DateFormat.E(locale).format(DateTime(2024, 1, weekday));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final dateFormat = DateFormat.yMd(locale);
     final symbol = Money.symbol(widget.store.currencyCode);
+    final firstDayIndex =
+        MaterialLocalizations.of(context).firstDayOfWeekIndex;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -285,6 +303,33 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
             ),
             const SizedBox(height: 8),
             Text(
+              l.historyFilterWeekdaySection,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: List.generate(7, (i) {
+                final weekday = _weekdayAt(i, firstDayIndex);
+                final selected = _weekdays.contains(weekday);
+                return FilterChip(
+                  label: Text(_weekdayShortName(weekday, locale)),
+                  selected: selected,
+                  onSelected: (v) {
+                    setState(() {
+                      if (v) {
+                        _weekdays.add(weekday);
+                      } else {
+                        _weekdays.remove(weekday);
+                      }
+                    });
+                  },
+                );
+              }),
+            ),
+            const SizedBox(height: 16),
+            Text(
               l.historyFilterTimeOfDaySection,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
@@ -366,13 +411,15 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
             ),
             if (_priceMode == PriceFilterMode.inRange)
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 8, bottom: 8),
+                padding:
+                    const EdgeInsets.only(left: 16, right: 8, bottom: 8),
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
                         controller: _priceMinCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(
+                        keyboardType:
+                            const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
                         decoration: InputDecoration(
@@ -388,7 +435,8 @@ class _HistoryFilterSheetState extends State<_HistoryFilterSheet> {
                     Expanded(
                       child: TextField(
                         controller: _priceMaxCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(
+                        keyboardType:
+                            const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
                         decoration: InputDecoration(
