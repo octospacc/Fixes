@@ -10,7 +10,18 @@ class EntryForm extends StatefulWidget {
   final Store store;
   final Entry? entry;
 
-  const EntryForm({super.key, required this.store, this.entry});
+  /// Optional item to preselect when creating a new entry. Ignored when
+  /// [entry] is non-null (editing an existing entry loads its own item).
+  /// If the id does not match any current item, the form falls back to
+  /// the first item in the store.
+  final String? initialItemId;
+
+  const EntryForm({
+    super.key,
+    required this.store,
+    this.entry,
+    this.initialItemId,
+  });
 
   @override
   State<EntryForm> createState() => _EntryFormState();
@@ -40,9 +51,18 @@ class _EntryFormState extends State<EntryForm> {
       _hasTime = e.hasTime;
       _price = e.pricePerUnit;
       _note = e.note;
-    } else if (items.isNotEmpty) {
-      _itemId = items.first.id;
-      _price = items.first.defaultPrice;
+    } else {
+      final Item? target;
+      if (widget.initialItemId != null) {
+        target = widget.store.itemById(widget.initialItemId!);
+      } else {
+        target = null;
+      }
+      final chosen = target ?? (items.isNotEmpty ? items.first : null);
+      if (chosen != null) {
+        _itemId = chosen.id;
+        _price = chosen.defaultPrice;
+      }
     }
     _priceCtrl.text = Money.formatForInput(_price);
     _noteCtrl.text = _note;
@@ -80,12 +100,6 @@ class _EntryFormState extends State<EntryForm> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(_date),
       builder: (context, child) {
-        // Force 24-hour format inside the picker. The app already displays
-        // times as HH:MM everywhere, so the picker's input mode must use
-        // the same format. Without this, on platforms where MediaQuery
-        // reports a 12-hour preference that disagrees with the app's
-        // locale, the picker shows 24h in text mode but the parser rejects
-        // it — the "valid input read as invalid" bug.
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
             alwaysUse24HourFormat: true,

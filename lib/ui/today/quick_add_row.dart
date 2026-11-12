@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
-import '../../data/money.dart';
 import '../../data/store.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../entries/entry_form.dart';
 
 class QuickAddRow extends StatelessWidget {
   final Store store;
@@ -31,31 +31,44 @@ class QuickAddRow extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final item = items[i];
-          return OutlinedButton(
-            onPressed: () => _quickAdd(item),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          return Material(
+            color: Colors.transparent,
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => _quickAdd(item),
+              onLongPress: () => _openDetail(context, item),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(iconForCategory(item.category), size: 18),
-                    const SizedBox(width: 6),
-                    Text(item.name, softWrap: false),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(iconForCategory(item.category), size: 18),
+                        const SizedBox(width: 6),
+                        Text(item.name, softWrap: false),
+                      ],
+                    ),
+                    if (item.defaultPrice != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        item.defaultPrice!.toStringAsFixed(2),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
                   ],
                 ),
-                if (item.defaultPrice != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    Money.formatForInput(item.defaultPrice),
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ],
+              ),
             ),
           );
         },
@@ -70,5 +83,16 @@ class QuickAddRow extends StatelessWidget {
       hasTime: true,
       pricePerUnit: item.defaultPrice,
     ));
+  }
+
+  void _openDetail(BuildContext context, Item item) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => EntryForm(
+          store: store,
+          initialItemId: item.id,
+        ),
+      ),
+    );
   }
 }
