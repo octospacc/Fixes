@@ -385,4 +385,67 @@ class Store extends ChangeNotifier {
       jsonEncode(_entries.map((e) => e.toJson()).toList()),
     );
   }
+
+  /// Returns up to [limit] note suggestions drawn from past entries,
+  /// ranked by relevance to the given [itemId] and [category].
+  ///
+  /// If [prefix] is non-empty, only notes that start with it
+  /// (case-insensitive) are considered, and exact matches are hidden
+  /// because the user has already typed the whole thing.
+  ///
+  /// No absolute score threshold is applied: every distinct past note is
+  /// a candidate, ranked by item match, category match, recency, and
+  /// frequency. The [limit] alone bounds the list size, which keeps the
+  /// suggestion chips from overflowing the screen without hiding notes
+  /// the user actually wrote.
+  List<String> suggestNotes({
+    String? itemId,
+    String? category,
+    String prefix = '',
+    int limit = 10,
+  }) {
+    if (_entries.isEmpty) return const [];
+
+    final p = prefix.trim().toLowerCase();
+
+    String? targetCategory = category;
+    if ((targetCategory == null || targetCategory.isEmpty) &&
+        itemId != null) {
+      targetCategory = itemById(itemId)?.category;
+    }
+
+    final now = DateTime.now();
+    final score = <String, double>{};
+
+    for (final entry in _entries) {
+      final note = entry.note.trim();
+      if (note.isEmpty) continue;
+
+      if (p.isNotEmpty) {
+        final lower = note.toLowerCase();
+        if (!lower.startsWith(p)) continue;
+        if (lower == p) continue;
+      }
+
+      final entryItem = itemById(entry.itemId);
+      final entryCategory = entryItem?.category ?? '';
+
+      double entryScore = 1.0;
+      if (itemId != null && entry.itemId == itemId) entryScore += 50;
+      if (targetCategory != null &&
+          targetCategory.isNotEmpty &&
+          entryCategory == targetCategory) {
+        entryScore += 15;
+      }
+
+      final ageDays = now.difference(entry.date).inHours / 24.0;
+      entryScore += 3.0 / (1.0 + ageDays / 30.0);
+
+      score[note] = (score[note] ?? 0) + entryScore;
+    }
+
+    final ranked = score.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return ranked.take(limit).map((e) => e.key).toList();
+  }
 }

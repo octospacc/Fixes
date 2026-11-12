@@ -65,6 +65,7 @@
   "entryIncludeTime": "Includi ora",
   "entryPricePerUnit": "Prezzo unitario",
   "entryNote": "Nota",
+  "entryNoteSuggestions": "Note precedenti",
 
   "itemNew": "Nuovo articolo",
   "itemEdit": "Modifica articolo",

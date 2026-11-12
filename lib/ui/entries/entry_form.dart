@@ -12,8 +12,6 @@ class EntryForm extends StatefulWidget {
 
   /// Optional item to preselect when creating a new entry. Ignored when
   /// [entry] is non-null (editing an existing entry loads its own item).
-  /// If the id does not match any current item, the form falls back to
-  /// the first item in the store.
   final String? initialItemId;
 
   const EntryForm({
@@ -37,6 +35,9 @@ class _EntryFormState extends State<EntryForm> {
 
   final _priceCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
+  final _noteFocus = FocusNode();
+
+  List<String> _suggestions = const [];
 
   @override
   void initState() {
@@ -66,13 +67,45 @@ class _EntryFormState extends State<EntryForm> {
     }
     _priceCtrl.text = Money.formatForInput(_price);
     _noteCtrl.text = _note;
+    _noteFocus.addListener(_onNoteFocusChanged);
   }
 
   @override
   void dispose() {
     _priceCtrl.dispose();
     _noteCtrl.dispose();
+    _noteFocus.removeListener(_onNoteFocusChanged);
+    _noteFocus.dispose();
     super.dispose();
+  }
+
+  void _onNoteFocusChanged() {
+    if (_noteFocus.hasFocus) {
+      _refreshSuggestions();
+    } else if (_suggestions.isNotEmpty) {
+      // Defer the clear. TextField.onTapOutside unfocuses synchronously
+      // on pointer-down; without the delay, setState removes the chip
+      // from the widget tree before pointer-up reaches its onPressed,
+      // so tapping a chip appears to do nothing.
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        if (!_noteFocus.hasFocus && _suggestions.isNotEmpty) {
+          setState(() => _suggestions = const []);
+        }
+      });
+    }
+  }
+
+  void _refreshSuggestions() {
+    final item = widget.store.itemById(_itemId);
+    final s = widget.store.suggestNotes(
+      itemId: _itemId.isEmpty ? null : _itemId,
+      category: item?.category,
+      prefix: _noteCtrl.text,
+      limit: 10,
+    );
+    if (!mounted) return;
+    setState(() => _suggestions = s);
   }
 
   Future<void> _pickDate() async {
@@ -188,6 +221,9 @@ class _EntryFormState extends State<EntryForm> {
                   _price = widget.store.itemById(v)?.defaultPrice;
                   _priceCtrl.text = Money.formatForInput(_price);
                 });
+                if (_noteFocus.hasFocus && _noteCtrl.text.isEmpty) {
+                  _refreshSuggestions();
+                }
               }
             },
             decoration: InputDecoration(
@@ -261,12 +297,54 @@ class _EntryFormState extends State<EntryForm> {
           const SizedBox(height: 16),
           TextField(
             controller: _noteCtrl,
+            focusNode: _noteFocus,
             decoration: InputDecoration(
               labelText: l.entryNote,
               border: const OutlineInputBorder(),
             ),
-            onChanged: (v) => _note = v,
+            onChanged: (v) {
+              _note = v;
+              if (_noteFocus.hasFocus) {
+                _refreshSuggestions();
+              }
+            },
           ),
+          if (_suggestions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.entryNoteSuggestions,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: _suggestions.map((s) {
+                      return ActionChip(
+                        label: Text(s),
+                        onPressed: () {
+                          _noteCtrl.value = TextEditingValue(
+                            text: s,
+                            selection:
+                                TextSelection.collapsed(offset: s.length),
+                          );
+                          _note = s;
+                          setState(() => _suggestions = const []);
+                          _noteFocus.unfocus();
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 24),
         ],
       ),

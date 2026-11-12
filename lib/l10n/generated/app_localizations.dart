@@ -428,6 +428,12 @@ abstract class AppLocalizations {
   /// **'Note'**
   String get entryNote;
 
+  /// No description provided for @entryNoteSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous notes'**
+  String get entryNoteSuggestions;
+
   /// No description provided for @itemNew.
   ///
   /// In en, this message translates to:
