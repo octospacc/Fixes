@@ -182,6 +182,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get entryNoteSuggestions => 'Note precedenti';
 
   @override
+  String get entryPresets => 'Preset';
+
+  @override
   String get itemNew => 'Nuovo articolo';
 
   @override

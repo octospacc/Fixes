@@ -9,9 +9,6 @@ import '../../l10n/generated/app_localizations.dart';
 class EntryForm extends StatefulWidget {
   final Store store;
   final Entry? entry;
-
-  /// Optional item to preselect when creating a new entry. Ignored when
-  /// [entry] is non-null (editing an existing entry loads its own item).
   final String? initialItemId;
 
   const EntryForm({
@@ -35,9 +32,12 @@ class _EntryFormState extends State<EntryForm> {
 
   final _priceCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
+  final _priceFocus = FocusNode();
   final _noteFocus = FocusNode();
 
-  List<String> _suggestions = const [];
+  List<double> _priceSuggestions = const [];
+  List<String> _noteSuggestions = const [];
+  List<EntryPreset> _presets = const [];
 
   @override
   void initState() {
@@ -60,43 +60,72 @@ class _EntryFormState extends State<EntryForm> {
         target = null;
       }
       final chosen = target ?? (items.isNotEmpty ? items.first : null);
-      if (chosen != null) {
-        _itemId = chosen.id;
-        _price = chosen.defaultPrice;
-      }
+      if (chosen != null) _itemId = chosen.id;
     }
+
     _priceCtrl.text = Money.formatForInput(_price);
     _noteCtrl.text = _note;
+    _priceFocus.addListener(_onPriceFocusChanged);
     _noteFocus.addListener(_onNoteFocusChanged);
+    _presets = widget.store.suggestPresetsForItem(_itemId);
   }
 
   @override
   void dispose() {
     _priceCtrl.dispose();
     _noteCtrl.dispose();
+    _priceFocus.removeListener(_onPriceFocusChanged);
     _noteFocus.removeListener(_onNoteFocusChanged);
+    _priceFocus.dispose();
     _noteFocus.dispose();
     super.dispose();
   }
 
-  void _onNoteFocusChanged() {
-    if (_noteFocus.hasFocus) {
-      _refreshSuggestions();
-    } else if (_suggestions.isNotEmpty) {
-      // Defer the clear. TextField.onTapOutside unfocuses synchronously
-      // on pointer-down; without the delay, setState removes the chip
-      // from the widget tree before pointer-up reaches its onPressed,
-      // so tapping a chip appears to do nothing.
+  // ---------- Price suggestions ----------
+
+  void _onPriceFocusChanged() {
+    if (_priceFocus.hasFocus) {
+      _refreshPriceSuggestions();
+    } else if (_priceSuggestions.isNotEmpty) {
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        if (!_noteFocus.hasFocus && _suggestions.isNotEmpty) {
-          setState(() => _suggestions = const []);
+        if (!_priceFocus.hasFocus && _priceSuggestions.isNotEmpty) {
+          setState(() => _priceSuggestions = const []);
         }
       });
     }
   }
 
-  void _refreshSuggestions() {
+  void _refreshPriceSuggestions() {
+    if (!_priceFocus.hasFocus) return;
+    if (_itemId.isEmpty) {
+      if (_priceSuggestions.isNotEmpty) {
+        setState(() => _priceSuggestions = const []);
+      }
+      return;
+    }
+    final s = widget.store.suggestPricesForItem(_itemId);
+    if (!mounted) return;
+    setState(() => _priceSuggestions = s);
+  }
+
+  // ---------- Note suggestions ----------
+
+  void _onNoteFocusChanged() {
+    if (_noteFocus.hasFocus) {
+      _refreshNoteSuggestions();
+    } else if (_noteSuggestions.isNotEmpty) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        if (!_noteFocus.hasFocus && _noteSuggestions.isNotEmpty) {
+          setState(() => _noteSuggestions = const []);
+        }
+      });
+    }
+  }
+
+  void _refreshNoteSuggestions() {
+    if (!_noteFocus.hasFocus) return;
     final item = widget.store.itemById(_itemId);
     final s = widget.store.suggestNotes(
       itemId: _itemId.isEmpty ? null : _itemId,
@@ -105,8 +134,53 @@ class _EntryFormState extends State<EntryForm> {
       limit: 10,
     );
     if (!mounted) return;
-    setState(() => _suggestions = s);
+    setState(() => _noteSuggestions = s);
   }
+
+  // ---------- Presets ----------
+
+  void _refreshPresets() {
+    if (_itemId.isEmpty) {
+      if (_presets.isNotEmpty) {
+        setState(() => _presets = const []);
+      }
+      return;
+    }
+    final p = widget.store.suggestPresetsForItem(_itemId);
+    if (!mounted) return;
+    setState(() => _presets = p);
+  }
+
+  String _presetLabel(EntryPreset p, String currency, String locale) {
+    final priceStr = p.price != null
+        ? Money.format(p.price!, currencyCode: currency, locale: locale)
+        : null;
+    if (p.note.isEmpty) return priceStr ?? '';
+    if (priceStr == null) return p.note;
+    return '${p.note} · $priceStr';
+  }
+
+  void _applyPreset(EntryPreset p) {
+    final priceText = Money.formatForInput(p.price);
+    _priceCtrl.value = TextEditingValue(
+      text: priceText,
+      selection: TextSelection.collapsed(offset: priceText.length),
+    );
+    _noteCtrl.value = TextEditingValue(
+      text: p.note,
+      selection: TextSelection.collapsed(offset: p.note.length),
+    );
+    setState(() {
+      _price = p.price;
+      _note = p.note;
+      _priceSuggestions = const [];
+      _noteSuggestions = const [];
+    });
+    _priceFocus.unfocus();
+    _noteFocus.unfocus();
+  }
+
+  // ---------- Date / time pickers ----------
 
   Future<void> _pickDate() async {
     final date = await showDatePicker(
@@ -182,6 +256,7 @@ class _EntryFormState extends State<EntryForm> {
     final l = AppLocalizations.of(context)!;
     final items = widget.store.items;
     final locale = Localizations.localeOf(context).toString();
+    final currency = widget.store.currencyCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -216,14 +291,10 @@ class _EntryFormState extends State<EntryForm> {
                 .toList(),
             onChanged: (v) {
               if (v != null) {
-                setState(() {
-                  _itemId = v;
-                  _price = widget.store.itemById(v)?.defaultPrice;
-                  _priceCtrl.text = Money.formatForInput(_price);
-                });
-                if (_noteFocus.hasFocus && _noteCtrl.text.isEmpty) {
-                  _refreshSuggestions();
-                }
+                setState(() => _itemId = v);
+                if (_priceFocus.hasFocus) _refreshPriceSuggestions();
+                if (_noteFocus.hasFocus) _refreshNoteSuggestions();
+                _refreshPresets();
               }
             },
             decoration: InputDecoration(
@@ -286,6 +357,7 @@ class _EntryFormState extends State<EntryForm> {
           const SizedBox(height: 16),
           TextField(
             controller: _priceCtrl,
+            focusNode: _priceFocus,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
@@ -294,6 +366,36 @@ class _EntryFormState extends State<EntryForm> {
             ),
             onChanged: (v) => _price = Money.parse(v),
           ),
+          if (_priceSuggestions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: _priceSuggestions.map((p) {
+                  final label = Money.format(
+                    p,
+                    currencyCode: currency,
+                    locale: locale,
+                  );
+                  return ActionChip(
+                    label: Text(label),
+                    onPressed: () {
+                      final text = Money.formatForInput(p);
+                      _priceCtrl.value = TextEditingValue(
+                        text: text,
+                        selection: TextSelection.collapsed(
+                          offset: text.length,
+                        ),
+                      );
+                      _price = p;
+                      setState(() => _priceSuggestions = const []);
+                      _priceFocus.unfocus();
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
           const SizedBox(height: 16),
           TextField(
             controller: _noteCtrl,
@@ -304,12 +406,10 @@ class _EntryFormState extends State<EntryForm> {
             ),
             onChanged: (v) {
               _note = v;
-              if (_noteFocus.hasFocus) {
-                _refreshSuggestions();
-              }
+              if (_noteFocus.hasFocus) _refreshNoteSuggestions();
             },
           ),
-          if (_suggestions.isNotEmpty)
+          if (_noteSuggestions.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Column(
@@ -326,7 +426,7 @@ class _EntryFormState extends State<EntryForm> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: _suggestions.map((s) {
+                    children: _noteSuggestions.map((s) {
                       return ActionChip(
                         label: Text(s),
                         onPressed: () {
@@ -336,7 +436,7 @@ class _EntryFormState extends State<EntryForm> {
                                 TextSelection.collapsed(offset: s.length),
                           );
                           _note = s;
-                          setState(() => _suggestions = const []);
+                          setState(() => _noteSuggestions = const []);
                           _noteFocus.unfocus();
                         },
                       );
@@ -345,6 +445,27 @@ class _EntryFormState extends State<EntryForm> {
                 ],
               ),
             ),
+          if (_presets.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              l.entryPresets,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: _presets.map((p) {
+                return ActionChip(
+                  label: Text(_presetLabel(p, currency, locale)),
+                  onPressed: () => _applyPreset(p),
+                );
+              }).toList(),
+            ),
+          ],
           const SizedBox(height: 24),
         ],
       ),

@@ -66,6 +66,7 @@
   "entryPricePerUnit": "Prezzo unitario",
   "entryNote": "Nota",
   "entryNoteSuggestions": "Note precedenti",
+  "entryPresets": "Preset",
 
   "itemNew": "Nuovo articolo",
   "itemEdit": "Modifica articolo",

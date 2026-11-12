@@ -179,6 +179,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get entryNoteSuggestions => 'Previous notes';
 
   @override
+  String get entryPresets => 'Presets';
+
+  @override
   String get itemNew => 'New item';
 
   @override

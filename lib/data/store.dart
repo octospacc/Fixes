@@ -5,6 +5,18 @@ import 'models.dart';
 
 enum SyncDirection { upload, download }
 
+class EntryPreset {
+  final String note;
+  final double? price;
+  final int count;
+
+  const EntryPreset({
+    required this.note,
+    required this.price,
+    required this.count,
+  });
+}
+
 class Store extends ChangeNotifier {
   static const _kItems = 'items';
   static const _kEntries = 'entries';
@@ -447,5 +459,82 @@ class Store extends ChangeNotifier {
     final ranked = score.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return ranked.take(limit).map((e) => e.key).toList();
+  }
+
+  /// Returns up to [limit] prices to suggest for [itemId], ordered by
+  /// how often they've been used with this item. The item's
+  /// `defaultPrice` is included even if never used, ranked below any
+  /// prices that have actual history.
+  ///
+  /// Ties are broken in favour of the defaultPrice, then by numeric
+  /// value. Returns an empty list when the item has neither a default
+  /// price nor any past priced entries.
+  List<double> suggestPricesForItem(String itemId, {int limit = 4}) {
+    final item = itemById(itemId);
+    final defaultPrice = item?.defaultPrice;
+
+    final counts = <double, int>{};
+    for (final e in _entries) {
+      if (e.itemId != itemId) continue;
+      final p = e.pricePerUnit;
+      if (p == null) continue;
+      counts[p] = (counts[p] ?? 0) + 1;
+    }
+
+    if (defaultPrice != null && !counts.containsKey(defaultPrice)) {
+      // Include the default so the user can still pick it, but at the
+      // bottom of the list — its zero count sorts below any real history.
+      counts[defaultPrice] = 0;
+    }
+
+    final sorted = counts.entries.toList()
+      ..sort((a, b) {
+        final cmp = b.value.compareTo(a.value);
+        if (cmp != 0) return cmp;
+        if (defaultPrice == a.key) return -1;
+        if (defaultPrice == b.key) return 1;
+        return a.key.compareTo(b.key);
+      });
+
+    return sorted.take(limit).map((e) => e.key).toList();
+  }
+
+  /// Returns up to [limit] (note, price) combinations for [itemId],
+  /// ordered by how often they've appeared together in that item's
+  /// history. Fully blank entries — no note, no price — are skipped
+  /// because they carry no useful information as a preset.
+  ///
+  /// Two entries with the same note but different prices produce two
+  /// separate presets, e.g. "Macchinetta · €0.70" and
+  /// "Macchinetta · €0.50", because they represent distinct habits.
+  List<EntryPreset> suggestPresetsForItem(String itemId, {int limit = 6}) {
+    final counts = <String, int>{};
+    final bases = <String, EntryPreset>{};
+
+    for (final e in _entries) {
+      if (e.itemId != itemId) continue;
+      final note = e.note.trim();
+      final price = e.pricePerUnit;
+      if (note.isEmpty && price == null) continue;
+
+      final key = '$note|${price ?? 'null'}';
+      counts[key] = (counts[key] ?? 0) + 1;
+      bases.putIfAbsent(
+        key,
+        () => EntryPreset(note: note, price: price, count: 0),
+      );
+    }
+
+    final sorted = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sorted.take(limit).map((e) {
+      final base = bases[e.key]!;
+      return EntryPreset(
+        note: base.note,
+        price: base.price,
+        count: e.value,
+      );
+    }).toList();
   }
 }
