@@ -13,6 +13,7 @@
   "todaySpent": "Spent",
   "todayEmpty": "No entries yet today",
   "quickAddEmpty": "Add items from the Items tab to use quick add.",
+  "quickAddHint": "Tap to add · Hold for details",
 
   "historySearchHint": "Search entries",
   "historyEmpty": "No entries",

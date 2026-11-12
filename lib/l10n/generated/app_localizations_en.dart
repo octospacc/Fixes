@@ -39,6 +39,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAddEmpty => 'Add items from the Items tab to use quick add.';
 
   @override
+  String get quickAddHint => 'Tap to add · Hold for details';
+
+  @override
   String get historySearchHint => 'Search entries, categories, notes';
 
   @override

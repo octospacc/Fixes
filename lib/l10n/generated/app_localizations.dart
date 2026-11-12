@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'Add items from the Items tab to use quick add.'**
   String get quickAddEmpty;
 
+  /// No description provided for @quickAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add · Hold for details'**
+  String get quickAddHint;
+
   /// No description provided for @historySearchHint.
   ///
   /// In en, this message translates to:

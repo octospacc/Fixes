@@ -40,6 +40,10 @@ class AppLocalizationsIt extends AppLocalizations {
       'Aggiungi articoli dalla scheda Articoli per usare l\'aggiunta rapida.';
 
   @override
+  String get quickAddHint =>
+      'Tocca per aggiungere · Tieni premuto per i dettagli';
+
+  @override
   String get historySearchHint => 'Cerca voci, categorie, note';
 
   @override

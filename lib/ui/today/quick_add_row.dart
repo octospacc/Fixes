@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
 import '../../data/store.dart';
@@ -31,42 +32,51 @@ class QuickAddRow extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final item = items[i];
-          return Material(
-            color: Colors.transparent,
-            shape: StadiumBorder(
-              side: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-              ),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => _quickAdd(item),
-              onLongPress: () => _openDetail(context, item),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+          return Tooltip(
+            // manual: hover works on desktop/web, but long-press on mobile
+            // is left free for the InkWell — otherwise the tooltip would
+            // claim the gesture and the detail form would never open.
+            triggerMode: TooltipTriggerMode.manual,
+            waitDuration: const Duration(milliseconds: 600),
+            exitDuration: const Duration(milliseconds: 100),
+            message: l.quickAddHint,
+            child: Material(
+              color: Colors.transparent,
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(iconForCategory(item.category), size: 18),
-                        const SizedBox(width: 6),
-                        Text(item.name, softWrap: false),
-                      ],
-                    ),
-                    if (item.defaultPrice != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        item.defaultPrice!.toStringAsFixed(2),
-                        style: const TextStyle(fontSize: 12),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => _quickAdd(item),
+                onLongPress: () => _openDetail(context, item),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(iconForCategory(item.category), size: 18),
+                          const SizedBox(width: 6),
+                          Text(item.name, softWrap: false),
+                        ],
                       ),
+                      if (item.defaultPrice != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.defaultPrice!.toStringAsFixed(2),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -86,6 +96,9 @@ class QuickAddRow extends StatelessWidget {
   }
 
   void _openDetail(BuildContext context, Item item) {
+    // Tactile confirmation that the gesture registered. No-op on platforms
+    // without haptics (web, desktop) — safe to call unconditionally.
+    HapticFeedback.mediumImpact();
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => EntryForm(

@@ -13,6 +13,7 @@
   "todaySpent": "Speso",
   "todayEmpty": "Nessuna voce per oggi",
   "quickAddEmpty": "Aggiungi articoli dalla scheda Articoli per usare l'aggiunta rapida.",
+  "quickAddHint": "Tocca per aggiungere · Tieni premuto per i dettagli",
 
   "historySearchHint": "Cerca voci",
   "historyEmpty": "Nessuna voce",
