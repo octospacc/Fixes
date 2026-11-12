@@ -293,13 +293,14 @@ class _HistoryViewState extends State<HistoryView> {
     BuildContext context,
     AppLocalizations l,
   ) {
+    final locale = Localizations.localeOf(context).toString();
     final today = widget.store.logicalDay(DateTime.now());
     final yesterday = today.subtract(const Duration(days: 1));
-    if (_sameDay(d, today)) return l.historyToday;
-    if (_sameDay(d, yesterday)) return l.historyYesterday;
-    return DateFormat.yMd(
-      Localizations.localeOf(context).toString(),
-    ).format(d);
+    final weekday = DateFormat.EEEE(locale).format(d);
+
+    if (_sameDay(d, today)) return '${l.historyToday} · $weekday';
+    if (_sameDay(d, yesterday)) return '${l.historyYesterday} · $weekday';
+    return DateFormat.yMMMMEEEEd(locale).format(d);
   }
 
   bool _sameDay(DateTime a, DateTime b) =>
