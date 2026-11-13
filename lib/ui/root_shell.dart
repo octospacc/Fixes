@@ -39,7 +39,7 @@ class _RootShellState extends State<RootShell> {
     ];
 
     Widget? fab;
-    if (_index == 0) {
+    if (_index == 0 || _index == 1) {
       fab = FloatingActionButton(
         tooltip: l.fabAddEntry,
         onPressed: () => Navigator.of(context).push(
@@ -171,9 +171,6 @@ class _SyncAction extends StatelessWidget {
             ? l.syncIndicatorUnsyncedManual
             : l.syncIndicatorSyncedManual);
 
-    // When auto-sync is off, the icon is a passive indicator. Tapping it
-    // would be a manual sync, which contradicts the user's choice to only
-    // sync from the Settings screen.
     if (!auto) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),

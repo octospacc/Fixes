@@ -130,6 +130,7 @@ class _HistoryViewState extends State<HistoryView> {
                       ),
                     )
                   : ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 88),
                       itemCount: dates.length,
                       itemBuilder: (context, i) {
                         final date = dates[i];
