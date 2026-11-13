@@ -1099,6 +1099,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Changes pending — sync from Settings'**
   String get syncIndicatorUnsyncedManual;
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No items} =1{1 item} other{{count} items}}'**
+  String itemsCount(int count);
+
+  /// No description provided for @sortByUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by usage'**
+  String get sortByUsage;
+
+  /// No description provided for @sortedByUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorted by recent usage'**
+  String get sortedByUsage;
 }
 
 class _AppLocalizationsDelegate

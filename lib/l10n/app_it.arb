@@ -245,5 +245,12 @@
   "syncIndicatorUnsyncedAuto": "Modifiche in sospeso — tocca per sincronizzare ora",
   "syncIndicatorSyncing": "Sincronizzazione…",
   "syncIndicatorSyncedManual": "Tutte le modifiche sincronizzate",
-  "syncIndicatorUnsyncedManual": "Modifiche in sospeso — sincronizza dalle Impostazioni"
+  "syncIndicatorUnsyncedManual": "Modifiche in sospeso — sincronizza dalle Impostazioni",
+
+  "itemsCount": "{count, plural, =0{Nessun articolo} =1{1 articolo} other{{count} articoli}}",
+  "@itemsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "sortByUsage": "Ordina per utilizzo",
+  "sortedByUsage": "Ordinati per utilizzo recente"
 }

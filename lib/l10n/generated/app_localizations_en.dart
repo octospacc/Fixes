@@ -581,4 +581,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get syncIndicatorUnsyncedManual =>
       'Changes pending — sync from Settings';
+
+  @override
+  String itemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'No items',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sortByUsage => 'Sort by usage';
+
+  @override
+  String get sortedByUsage => 'Sorted by recent usage';
 }

@@ -25,65 +25,125 @@ class ItemsView extends StatelessWidget {
         final locale = Localizations.localeOf(context).toString();
         final error = Theme.of(context).colorScheme.error;
 
-        return ListView.builder(
-          padding: const EdgeInsets.only(bottom: 88),
-          itemCount: items.length,
-          itemBuilder: (context, i) {
-            final item = items[i];
-            final entryCount =
-                store.entries.where((e) => e.itemId == item.id).length;
-            final priceText = item.defaultPrice != null
-                ? Money.format(
-                    item.defaultPrice!,
-                    currencyCode: store.currencyCode,
-                    locale: locale,
-                  )
-                : null;
+        return Column(
+          children: [
+            _Toolbar(
+              count: items.length,
+              showSort: items.length >= 2,
+              onSort: () => _sortByUsage(context, l),
+              l: l,
+            ),
+            Expanded(
+              child: ReorderableListView.builder(
+                padding: const EdgeInsets.only(bottom: 88),
+                itemCount: items.length,
+                buildDefaultDragHandles: false,
+                onReorder: (oldIndex, newIndex) {
+                  if (oldIndex < newIndex) newIndex -= 1;
+                  final moved = items[oldIndex];
+                  final updated = List<Item>.from(items);
+                  updated.removeAt(oldIndex);
+                  updated.insert(newIndex, moved);
+                  store.reorderItems(updated);
+                },
+                itemBuilder: (context, i) {
+                  final item = items[i];
+                  final entryCount =
+                      store.entries.where((e) => e.itemId == item.id).length;
+                  final priceText = item.defaultPrice != null
+                      ? Money.format(
+                          item.defaultPrice!,
+                          currencyCode: store.currencyCode,
+                          locale: locale,
+                        )
+                      : null;
 
-            return ListTile(
-              leading: Icon(iconForCategory(item.category)),
-              title: Text(item.name),
-              subtitle:
-                  item.category.isNotEmpty ? Text(item.category) : null,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (priceText != null) Text(priceText),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_horiz, size: 20),
-                    tooltip: l.tileMore,
-                    onSelected: (v) async {
-                      if (v == 'delete') {
-                        await _confirmAndDelete(context, item, entryCount);
-                      }
-                    },
-                    itemBuilder: (_) => [
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete_outline, color: error),
-                            const SizedBox(width: 12),
-                            Text(
-                              l.actionDelete,
-                              style: TextStyle(color: error),
+                  return ListTile(
+                    key: ValueKey(item.id),
+                    leading: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ReorderableDragStartListener(
+                          index: i,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Icon(
+                              Icons.drag_handle,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Icon(iconForCategory(item.category)),
+                      ],
+                    ),
+                    title: Text(item.name),
+                    subtitle: item.category.isNotEmpty
+                        ? Text(item.category)
+                        : null,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (priceText != null) Text(priceText),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_horiz, size: 20),
+                          tooltip: l.tileMore,
+                          onSelected: (v) async {
+                            if (v == 'delete') {
+                              await _confirmAndDelete(
+                                context,
+                                item,
+                                entryCount,
+                                l,
+                              );
+                            }
+                          },
+                          itemBuilder: (_) => [
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_outline, color: error),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    l.actionDelete,
+                                    style: TextStyle(color: error),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ItemForm(store: store, item: item),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  );
+                },
               ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => ItemForm(store: store, item: item),
-                ),
-              ),
-            );
-          },
+            ),
+          ],
         );
       },
+    );
+  }
+
+  void _sortByUsage(BuildContext context, AppLocalizations l) {
+    final before = List<Item>.from(store.items);
+    store.sortItemsByUsage();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l.sortedByUsage),
+        action: SnackBarAction(
+          label: l.tileUndo,
+          onPressed: () => store.reorderItems(before),
+        ),
+      ),
     );
   }
 
@@ -91,8 +151,8 @@ class ItemsView extends StatelessWidget {
     BuildContext context,
     Item item,
     int entryCount,
+    AppLocalizations l,
   ) async {
-    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
 
     final ok = await showDialog<bool>(
@@ -127,6 +187,45 @@ class ItemsView extends StatelessWidget {
     store.deleteItem(item.id);
     messenger.showSnackBar(
       SnackBar(content: Text(l.itemDeleted(item.name))),
+    );
+  }
+}
+
+class _Toolbar extends StatelessWidget {
+  final int count;
+  final bool showSort;
+  final VoidCallback onSort;
+  final AppLocalizations l;
+
+  const _Toolbar({
+    required this.count,
+    required this.showSort,
+    required this.onSort,
+    required this.l,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+      child: Row(
+        children: [
+          Text(
+            l.itemsCount(count),
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const Spacer(),
+          if (showSort)
+            TextButton.icon(
+              icon: const Icon(Icons.sort, size: 18),
+              label: Text(l.sortByUsage),
+              onPressed: onSort,
+            ),
+        ],
+      ),
     );
   }
 }

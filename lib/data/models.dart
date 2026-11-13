@@ -6,12 +6,14 @@ class Item {
   String name;
   String category;
   double? defaultPrice;
+  int sortOrder;
 
   Item({
     String? id,
     required this.name,
     this.category = '',
     this.defaultPrice,
+    this.sortOrder = 0,
   }) : id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +21,7 @@ class Item {
         'name': name,
         'category': category,
         'defaultPrice': defaultPrice,
+        'sortOrder': sortOrder,
       };
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -26,6 +29,7 @@ class Item {
         name: json['name'] as String,
         category: (json['category'] as String?) ?? '',
         defaultPrice: (json['defaultPrice'] as num?)?.toDouble(),
+        sortOrder: (json['sortOrder'] as int?) ?? 0,
       );
 }
 

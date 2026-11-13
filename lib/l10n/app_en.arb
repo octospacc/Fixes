@@ -245,5 +245,12 @@
   "syncIndicatorUnsyncedAuto": "Changes pending — tap to sync now",
   "syncIndicatorSyncing": "Syncing…",
   "syncIndicatorSyncedManual": "All changes synced",
-  "syncIndicatorUnsyncedManual": "Changes pending — sync from Settings"
+  "syncIndicatorUnsyncedManual": "Changes pending — sync from Settings",
+
+  "itemsCount": "{count, plural, =0{No items} =1{1 item} other{{count} items}}",
+  "@itemsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "sortByUsage": "Sort by usage",
+  "sortedByUsage": "Sorted by recent usage"
 }

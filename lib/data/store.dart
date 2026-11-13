@@ -218,8 +218,15 @@ class Store extends ChangeNotifier {
   Future<void> saveItem(Item item) async {
     final i = _items.indexWhere((x) => x.id == item.id);
     if (i >= 0) {
+      item.sortOrder = _items[i].sortOrder;
       _items[i] = item;
     } else {
+      item.sortOrder = _items.isEmpty
+          ? 0
+          : _items
+                  .map((x) => x.sortOrder)
+                  .reduce((a, b) => a > b ? a : b) +
+              1;
       _items.add(item);
     }
     _touch();
@@ -262,6 +269,103 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> reorderItems(List<Item> newOrder) async {
+    for (var i = 0; i < newOrder.length; i++) {
+      newOrder[i].sortOrder = i;
+    }
+    _items = newOrder;
+    _touch();
+    // notifyListeners fires before the await so ReorderableListView's
+    // post-drop animation sees the updated order. Without this, the
+    // dropped row snaps back briefly.
+    notifyListeners();
+    await _persist();
+  }
+
+  /// Reorders items so that the most-used items come first, then the
+  /// lesser-used ones, preserving the current order as the final
+  /// tiebreaker.
+  ///
+  /// Ranking key, in priority order:
+  ///   1. entries in the last 30 days  (descending) — current habit
+  ///   2. all-time entry count          (descending) — historical weight
+  ///   3. last-used timestamp           (descending) — recency
+  ///   4. current sortOrder             (ascending)  — stable fallback
+  ///
+  /// Produces a new manual order: after this call, subsequent drags
+  /// start from the sorted arrangement, and no further sorting happens
+  /// automatically.
+  Future<void> sortItemsByUsage() async {
+    if (_items.length < 2) return;
+
+    final now = DateTime.now();
+    final cutoff = now.subtract(const Duration(days: 30));
+
+    final recentCount = <String, int>{};
+    final totalCount = <String, int>{};
+    final lastUsed = <String, DateTime>{};
+
+    for (final e in _entries) {
+      totalCount[e.itemId] = (totalCount[e.itemId] ?? 0) + 1;
+      if (e.date.isAfter(cutoff)) {
+        recentCount[e.itemId] = (recentCount[e.itemId] ?? 0) + 1;
+      }
+      final prev = lastUsed[e.itemId];
+      if (prev == null || e.date.isAfter(prev)) {
+        lastUsed[e.itemId] = e.date;
+      }
+    }
+
+    final sorted = List<Item>.from(_items);
+    sorted.sort((a, b) {
+      final ra = recentCount[a.id] ?? 0;
+      final rb = recentCount[b.id] ?? 0;
+      if (ra != rb) return rb.compareTo(ra);
+
+      final ta = totalCount[a.id] ?? 0;
+      final tb = totalCount[b.id] ?? 0;
+      if (ta != tb) return tb.compareTo(ta);
+
+      final la = lastUsed[a.id];
+      final lb = lastUsed[b.id];
+      if (la != null && lb != null && la != lb) {
+        return lb.compareTo(la);
+      }
+      if (la != null && lb == null) return -1;
+      if (la == null && lb != null) return 1;
+
+      return a.sortOrder.compareTo(b.sortOrder);
+    });
+
+    for (var i = 0; i < sorted.length; i++) {
+      sorted[i].sortOrder = i;
+    }
+    _items = sorted;
+    _touch();
+    notifyListeners();
+    await _persist();
+  }
+
+  /// Ensures items are sorted by sortOrder and the values are contiguous
+  /// 0..n-1. Handles three cases:
+  ///   1. Old data (all sortOrder==0): assign 0..n-1 in current JSON order.
+  ///   2. Fresh data: already contiguous, no-op.
+  ///   3. Mixed (some 0, some non-0, possible duplicates): sort with the
+  ///      original list index as tiebreaker, then renumber.
+  void _ensureSortOrder() {
+    if (_items.isEmpty) return;
+    final indexed = _items.asMap().entries.toList();
+    indexed.sort((a, b) {
+      final cmp = a.value.sortOrder.compareTo(b.value.sortOrder);
+      if (cmp != 0) return cmp;
+      return a.key.compareTo(b.key);
+    });
+    _items = indexed.map((e) => e.value).toList();
+    for (var i = 0; i < _items.length; i++) {
+      _items[i].sortOrder = i;
+    }
+  }
+
   // ---------- Sync ----------
 
   String toSyncJson() {
@@ -298,6 +402,7 @@ class Store extends ChangeNotifier {
     _items = (data['items'] as List)
         .map((j) => Item.fromJson(j as Map<String, dynamic>))
         .toList();
+    _ensureSortOrder();
     _entries = (data['entries'] as List)
         .map((j) => Entry.fromJson(j as Map<String, dynamic>))
         .toList();
@@ -346,6 +451,7 @@ class Store extends ChangeNotifier {
       debugPrint('Failed to load items: $e');
       _items = [];
     }
+    _ensureSortOrder();
     try {
       final raw = _prefs.getString(_kEntries);
       if (raw != null) {
