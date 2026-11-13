@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../data/category_icons.dart';
 import '../../data/models.dart';
@@ -32,8 +33,10 @@ class _EntryFormState extends State<EntryForm> {
 
   final _priceCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
+  final _qtyCtrl = TextEditingController();
   final _priceFocus = FocusNode();
   final _noteFocus = FocusNode();
+  final _qtyFocus = FocusNode();
 
   List<double> _priceSuggestions = const [];
   List<String> _noteSuggestions = const [];
@@ -65,8 +68,11 @@ class _EntryFormState extends State<EntryForm> {
 
     _priceCtrl.text = Money.formatForInput(_price);
     _noteCtrl.text = _note;
+    _qtyCtrl.text = _quantity.toInt().toString();
+
     _priceFocus.addListener(_onPriceFocusChanged);
     _noteFocus.addListener(_onNoteFocusChanged);
+    _qtyFocus.addListener(_onQtyFocusChanged);
     _presets = widget.store.suggestPresetsForItem(_itemId);
   }
 
@@ -74,11 +80,50 @@ class _EntryFormState extends State<EntryForm> {
   void dispose() {
     _priceCtrl.dispose();
     _noteCtrl.dispose();
+    _qtyCtrl.dispose();
     _priceFocus.removeListener(_onPriceFocusChanged);
     _noteFocus.removeListener(_onNoteFocusChanged);
+    _qtyFocus.removeListener(_onQtyFocusChanged);
     _priceFocus.dispose();
     _noteFocus.dispose();
+    _qtyFocus.dispose();
     super.dispose();
+  }
+
+  // ---------- Quantity ----------
+
+  void _onQtyFocusChanged() {
+    if (_qtyFocus.hasFocus) {
+      // Select-all on focus so typing over "1" replaces it rather than
+      // appending, which is the expected behaviour for a number stepper.
+      _qtyCtrl.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _qtyCtrl.text.length,
+      );
+    } else {
+      // On blur, normalise back to the last valid value (handles empty,
+      // zero, out-of-range, or leading-zero typos without disturbing
+      // valid input).
+      _qtyCtrl.text = _quantity.toInt().toString();
+    }
+  }
+
+  void _setQuantity(double q) {
+    final clamped = q.clamp(1, 999).toDouble();
+    _qtyCtrl.text = clamped.toInt().toString();
+    _qtyCtrl.selection =
+        TextSelection.collapsed(offset: _qtyCtrl.text.length);
+    setState(() => _quantity = clamped);
+  }
+
+  void _onQtyTextChanged(String v) {
+    if (v.isEmpty) return;
+    final parsed = int.tryParse(v);
+    if (parsed != null && parsed >= 1 && parsed <= 999) {
+      _quantity = parsed.toDouble();
+    }
+    // Invalid input (0, >999) leaves _quantity at the last valid value.
+    // On blur, the field reverts to that value.
   }
 
   // ---------- Price suggestions ----------
@@ -313,13 +358,32 @@ class _EntryFormState extends State<EntryForm> {
               ),
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => setState(
-                    () => _quantity = (_quantity - 1).clamp(1, 999)),
+                onPressed: () => _setQuantity(_quantity - 1),
               ),
-              Text(_quantity.toStringAsFixed(0)),
+              SizedBox(
+                width: 64,
+                child: TextField(
+                  controller: _qtyCtrl,
+                  focusNode: _qtyFocus,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  textAlign: TextAlign.center,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(3),
+                  ],
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                  ),
+                  onChanged: _onQtyTextChanged,
+                ),
+              ),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
-                onPressed: () => setState(() => _quantity += 1),
+                onPressed: () => _setQuantity(_quantity + 1),
               ),
             ],
           ),
