@@ -147,9 +147,7 @@ class _StatsViewState extends State<StatsView> {
                   leading: Icon(iconForCategory(t.category)),
                   title: Text(t.name),
                   subtitle: _lastSeenLabel(context, t.lastSeen, l),
-                  trailing: Text(
-                    '${t.count} · ${Money.format(t.spending, currencyCode: code, locale: locale)}',
-                  ),
+                  trailing: Text(_trailingText(t, code, locale)),
                 ),
               ),
             const SizedBox(height: 24),
@@ -200,6 +198,27 @@ class _StatsViewState extends State<StatsView> {
       text = l.statsLastSeenDaysAgo(days);
     }
     return Text(text);
+  }
+
+  String _fmtQty(double q) {
+    if (q == q.roundToDouble()) return q.toInt().toString();
+    // Fallback for fractional quantities. Trim trailing zeros.
+    return q.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
+  String _trailingText(ItemTotal t, String code, String locale) {
+    final spend = Money.format(
+      t.spending,
+      currencyCode: code,
+      locale: locale,
+    );
+    final qtyIsWhole = t.totalQuantity == t.totalQuantity.roundToDouble();
+    final qtySameAsEntries =
+        qtyIsWhole && t.totalQuantity.toInt() == t.count;
+    if (qtySameAsEntries) {
+      return '${t.count} · $spend';
+    }
+    return '${t.count} · ${_fmtQty(t.totalQuantity)} · $spend';
   }
 }
 

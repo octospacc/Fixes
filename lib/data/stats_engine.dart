@@ -13,6 +13,7 @@ class ItemTotal {
   final String name;
   final String category;
   final int count;
+  final double totalQuantity;
   final double spending;
   final DateTime? lastSeen;
 
@@ -21,6 +22,7 @@ class ItemTotal {
     this.name,
     this.category,
     this.count,
+    this.totalQuantity,
     this.spending, {
     this.lastSeen,
   });
@@ -80,7 +82,6 @@ class StatsEngine {
     final itemMap = {for (final i in items) i.id: i};
     final grouped = groupBy(windowed, (Entry e) => logicalDay(e.date));
 
-    // ---------- Daily buckets ----------
     final daily = <DailyBucket>[];
     for (var i = 0; i < days; i++) {
       final day = startLogical.add(Duration(days: i));
@@ -95,7 +96,6 @@ class StatsEngine {
       ));
     }
 
-    // ---------- Last seen (all-time) ----------
     final lastSeenByItem = <String, DateTime>{};
     for (final e in entries) {
       final prev = lastSeenByItem[e.itemId];
@@ -104,16 +104,18 @@ class StatsEngine {
       }
     }
 
-    // ---------- Top items (windowed) ----------
     final byItem = groupBy(windowed, (Entry e) => e.itemId);
     final topItems = byItem.entries.map((e) {
       final list = e.value;
       final item = itemMap[e.key];
+      final totalQty =
+          list.fold<double>(0, (s, x) => s + x.quantity);
       return ItemTotal(
         e.key,
         item?.name ?? 'Unknown',
         item?.category ?? '',
         list.length,
+        totalQty,
         list.fold(
           0.0,
           (s, x) => s + (x.pricePerUnit ?? 0) * x.quantity,
@@ -123,7 +125,6 @@ class StatsEngine {
     }).toList()
       ..sort((a, b) => b.count.compareTo(a.count));
 
-    // ---------- Top categories (windowed) ----------
     final byCategory = <String, List<Entry>>{};
     for (final e in windowed) {
       final category = itemMap[e.itemId]?.category ?? '';
@@ -143,7 +144,6 @@ class StatsEngine {
     }).toList()
       ..sort((a, b) => b.count.compareTo(a.count));
 
-    // ---------- Streaks (all-time) ----------
     final allDays = entries
         .map((e) => logicalDay(e.date))
         .toSet()
@@ -177,7 +177,6 @@ class StatsEngine {
       }
     }
 
-    // ---------- Totals ----------
     final totalCount = windowed.length;
     final totalSpending = windowed.fold(
       0.0,
