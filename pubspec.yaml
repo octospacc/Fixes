@@ -1,7 +1,7 @@
 name: Fixes
 description: "A small, local-first consumption tracker for everyday countable things."
 publish_to: 'none'
-version: 1.2.7+4
+version: 1.2.8+5
 
 environment:
   sdk: '>=3.4.0 <4.0.0'

@@ -1,17 +1,20 @@
 # Fixes
 
-A small, local-first consumption tracker for iOS, iPadOS, macOS, Android, and the web.
+A small, local-first consumption tracker for mobile, desktop, and the web.
 
-* **Webapp available: https://hub.octt.eu.org/Fixes/**
+- **Webapp available: https://hub.octt.eu.org/Fixes/**
+- Latest built releases: https://gitlab.com/octospacc/Fixes/-/releases/permalink/latest/
+
+<table><tr>
+<td><a href="https://gitlab.com/octospacc/Fixes"><b>GitLab.com</b></a></td>
+<td><a href="https://github.com/octospacc/Fixes">GitHub</a></td>
+</tr></table>
 
 Fixes records everyday countable things — coffee, cigarettes, tea, chips, scratch cards, lunch out, gaming sessions — with optional prices and a few useful statistics. The interface is Material 3 throughout, using standard lists, forms, controls, and system typography. There is no account, no server, and no third-party service.
 
 <p align="center">
-  <img src="screenshots/today.jpg" width="270" alt="Today tab with quick add and today's entries">
-  <!--
-  <img src="screenshots/statistics.jpg" width="270" alt="Statistics tab with summary and charts">
-  <img src="screenshots/items.jpg" width="270" alt="Items list">
-  -->
+  <img src="screenshots/today_light.jpg" width="270" alt="Today tab with quick add and today's entries">
+  <img src="screenshots/stats_7_light.jpg" width="270" alt="Statistics tab with summary and charts">
 </p>
 
 ## Features
@@ -28,22 +31,23 @@ Fixes records everyday countable things — coffee, cigarettes, tea, chips, scra
 - **Reset data** — clears all entries and items, keeping settings.
 - **Native everywhere** — one Flutter codebase for mobile, desktop, and web.
 
-<!--
-
 ## More screens
 
 <p align="center">
-  <img src="screenshots/history.jpg" width="240" alt="History">
-  <img src="screenshots/entry-editor.jpg" width="240" alt="Entry editor">
-  <img src="screenshots/item-editor.jpg" width="240" alt="Item editor">
+  <img src="screenshots/history_light.jpg" width="270" alt="History">
+  <img src="screenshots/items_light.jpg" width="270" alt="History">
 </p>
 
 <p align="center">
-  <img src="screenshots/dark-mode.jpg" width="240" alt="Dark mode">
-  <img src="screenshots/statistics-wide.jpg" width="520" alt="Statistics on a wide layout">
+  <img src="screenshots/settings_light.jpg" width="240" alt="Entry editor">
+  <img src="screenshots/new_entry_light.jpg" width="240" alt="Entry editor">
+  <img src="screenshots/history_filters_light.jpg" width="240" alt="Item editor">
 </p>
 
--->
+<p align="center">
+  <img src="screenshots/today_dark.jpg" width="270" alt="Dark mode">
+  <img src="screenshots/stats_7_dark.jpg" width="270" alt="Dark mode">
+</p>
 
 ## Requirements
 
