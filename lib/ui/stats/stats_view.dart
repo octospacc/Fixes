@@ -146,7 +146,10 @@ class _StatsViewState extends State<StatsView> {
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(iconForCategory(t.category)),
                   title: Text(t.name),
-                  subtitle: _lastSeenLabel(context, t.lastSeen, l),
+                  subtitle: Text(
+                    '${_lastSeenText(t.lastSeen, l)} · '
+                    '${l.statsItemDailyRate(_fmtPerDay(t.totalQuantity / _days))}',
+                  ),
                   trailing: Text(_trailingText(t, code, locale)),
                 ),
               ),
@@ -179,25 +182,20 @@ class _StatsViewState extends State<StatsView> {
     );
   }
 
-  Widget? _lastSeenLabel(
-    BuildContext context,
-    DateTime? lastSeen,
-    AppLocalizations l,
-  ) {
-    if (lastSeen == null) return null;
+  String _lastSeenText(DateTime? lastSeen, AppLocalizations l) {
+    if (lastSeen == null) return '';
     final lastLogical = widget.store.logicalDay(lastSeen);
     final todayLogical = widget.store.logicalDay(DateTime.now());
     final days = todayLogical.difference(lastLogical).inDays;
+    if (days <= 0) return l.statsLastSeenToday;
+    if (days == 1) return l.statsLastSeenYesterday;
+    return l.statsLastSeenDaysAgo(days);
+  }
 
-    final String text;
-    if (days <= 0) {
-      text = l.statsLastSeenToday;
-    } else if (days == 1) {
-      text = l.statsLastSeenYesterday;
-    } else {
-      text = l.statsLastSeenDaysAgo(days);
-    }
-    return Text(text);
+  String _fmtPerDay(double v) {
+    if (v < 0.05) return '<0.1';
+    if (v >= 10) return v.toStringAsFixed(0);
+    return v.toStringAsFixed(1);
   }
 
   String _fmtQty(double q) {

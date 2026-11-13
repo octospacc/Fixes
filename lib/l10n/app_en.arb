@@ -220,10 +220,14 @@
   "@statsBestStreak": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "statsAveragePerDay": "avg / day",
-  "statsAverageSpendSubtitle": "{amount} / day",
+  "statsAveragePerDay": "entries / day",
+  "statsAverageSpendSubtitle": "{amount} spent / day",
   "@statsAverageSpendSubtitle": {
     "placeholders": { "amount": { "type": "String" } }
+  },
+  "statsItemDailyRate": "{rate}/day",
+  "@statsItemDailyRate": {
+    "placeholders": { "rate": { "type": "String" } }
   },
   "statsLastSeenToday": "today",
   "statsLastSeenYesterday": "yesterday",

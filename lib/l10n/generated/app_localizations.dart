@@ -1031,14 +1031,20 @@ abstract class AppLocalizations {
   /// No description provided for @statsAveragePerDay.
   ///
   /// In en, this message translates to:
-  /// **'avg / day'**
+  /// **'entries / day'**
   String get statsAveragePerDay;
 
   /// No description provided for @statsAverageSpendSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'{amount} / day'**
+  /// **'{amount} spent / day'**
   String statsAverageSpendSubtitle(String amount);
+
+  /// No description provided for @statsItemDailyRate.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}/day'**
+  String statsItemDailyRate(String rate);
 
   /// No description provided for @statsLastSeenToday.
   ///

@@ -220,10 +220,14 @@
   "@statsBestStreak": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "statsAveragePerDay": "media / giorno",
-  "statsAverageSpendSubtitle": "{amount} / giorno",
+  "statsAveragePerDay": "voci / giorno",
+  "statsAverageSpendSubtitle": "{amount} spesi / giorno",
   "@statsAverageSpendSubtitle": {
     "placeholders": { "amount": { "type": "String" } }
+  },
+  "statsItemDailyRate": "{rate}/giorno",
+  "@statsItemDailyRate": {
+    "placeholders": { "rate": { "type": "String" } }
   },
   "statsLastSeenToday": "oggi",
   "statsLastSeenYesterday": "ieri",

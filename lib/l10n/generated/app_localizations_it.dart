@@ -543,11 +543,16 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get statsAveragePerDay => 'media / giorno';
+  String get statsAveragePerDay => 'voci / giorno';
 
   @override
   String statsAverageSpendSubtitle(String amount) {
-    return '$amount / giorno';
+    return '$amount spesi / giorno';
+  }
+
+  @override
+  String statsItemDailyRate(String rate) {
+    return '$rate/giorno';
   }
 
   @override
